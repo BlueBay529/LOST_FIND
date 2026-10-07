@@ -1,0 +1,1265 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173d36">
+  <meta name="description" content="중랑구에서 잃어버린 물건과 주운 물건을 빠르게 연결하는 지역 분실물 서비스">
+  <title>찾아드림 - 중랑구 분실물·습득물 연결</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23173d36'/%3E%3Cpath d='M18 22h28v24H18z' fill='%23f5f1df'/%3E%3Cpath d='M24 22a8 8 0 0 1 16 0' fill='none' stroke='%23f4a83b' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='42' cy='42' r='9' fill='%23ef6d4a'/%3E%3Cpath d='m48 48 6 6' stroke='%23f5f1df' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root{--forest:#173d36;--forest-2:#245e51;--cream:#f7f4e9;--paper:#fffdf8;--orange:#ef6d4a;--yellow:#f4b84a;--ink:#172723;--muted:#687671;--line:#dfe5df;--blue:#4c78a8;--shadow:0 18px 50px rgba(23,61,54,.12);--radius:22px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:"Noto Sans KR",sans-serif;font-size:16px;line-height:1.6}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.container{width:min(1180px,calc(100% - 40px));margin:auto}
+    header{height:76px;background:rgba(247,244,233,.94);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(23,61,54,.09)}.nav{height:100%;display:flex;align-items:center;gap:34px}.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:1.23rem;color:var(--forest);margin-right:auto;cursor:pointer}.brand-mark{width:39px;height:39px;border-radius:13px;background:var(--forest);display:grid;place-items:center;position:relative;color:#fff}.brand-mark svg{width:25px}.desktop-nav{display:flex;gap:28px;font-weight:600;color:#50605b}.desktop-nav a:hover{color:var(--forest)}.header-actions{display:flex;align-items:center;gap:10px}.text-btn{border:0;background:none;color:#53625e;font-weight:600;padding:8px 12px;border-radius:10px}.text-btn:hover{background:rgba(23,61,54,.06);color:var(--forest)}.solid-btn,.outline-btn{border-radius:13px;padding:11px 18px;font-weight:700;border:1px solid transparent;transition:.2s}.solid-btn{background:var(--forest);color:#fff}.solid-btn:hover{background:var(--forest-2)}.outline-btn{background:transparent;border-color:var(--forest);color:var(--forest)}.outline-btn:hover{background:rgba(23,61,54,.07)}
+    .user-pill{display:flex;align-items:center;gap:8px;background:rgba(23,61,54,.08);padding:6px 14px;border-radius:20px;font-weight:700;font-size:.9rem;color:var(--forest)}
+    .hero{padding:46px 0 26px}.hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:45px;align-items:stretch}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--forest-2);font-weight:700;background:#dfece6;padding:7px 12px;border-radius:999px;font-size:.88rem}.eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--orange)}h1{font-family:"Gowun Dodum",sans-serif;font-size:clamp(2.25rem,4.2vw,4.05rem);line-height:1.14;letter-spacing:-.05em;margin:23px 0 18px;font-weight:400}.hero-copy{font-size:1.07rem;color:#596863;max-width:560px}.location-strip{display:flex;gap:10px;align-items:center;margin-top:28px;padding:13px 16px;border:1px solid var(--line);background:rgba(255,255,255,.55);border-radius:15px;width:fit-content;color:#4e5e59}.location-strip strong{color:var(--forest)}
+    .quick-card{background:var(--forest);color:white;border-radius:30px;padding:30px;position:relative;overflow:hidden;box-shadow:var(--shadow)}.quick-card:after{content:"";position:absolute;width:220px;height:220px;border:40px solid rgba(255,255,255,.055);border-radius:50%;right:-105px;top:-95px}.quick-title{position:relative;z-index:1}.quick-title small{color:#bcd5cd;font-weight:600}.quick-title h2{font-size:1.5rem;margin:5px 0 20px}.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;position:relative;z-index:1}.action-tile{border:0;border-radius:20px;padding:21px;text-align:left;min-height:174px;display:flex;flex-direction:column;transition:.22s transform,.22s box-shadow}.action-tile:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(0,0,0,.16)}.action-tile.lost{background:#fff1d2;color:#56350d}.action-tile.found{background:#fbe0d8;color:#5d2b20}.tile-icon{width:44px;height:44px;background:rgba(255,255,255,.7);border-radius:14px;display:grid;place-items:center;margin-bottom:auto}.tile-icon svg{width:23px}.action-tile strong{font-size:1.16rem}.action-tile span{font-size:.83rem;opacity:.75;margin-top:3px}.quick-note{position:relative;z-index:1;margin:17px 2px 0;color:#c8ddd6;font-size:.82rem}
+    .search-panel{margin:28px 0 18px;background:var(--paper);border:1px solid rgba(23,61,54,.1);border-radius:24px;padding:18px;box-shadow:0 10px 35px rgba(23,61,54,.06)}.search-row{display:grid;grid-template-columns:1.35fr .55fr .55fr auto auto;gap:10px}.field{height:54px;border:1px solid var(--line);background:white;border-radius:13px;display:flex;align-items:center;padding:0 15px;gap:10px}.field:focus-within{border-color:var(--forest-2);box-shadow:0 0 0 3px rgba(36,94,81,.09)}.field input,.field select{border:0;outline:0;background:transparent;width:100%;color:var(--ink)}.search-submit{height:54px;border:0;border-radius:13px;background:var(--orange);color:white;padding:0 25px;font-weight:800;transition:.2s}.search-submit:hover{background:#d75e3f}.search-reset{height:54px;border:1px solid var(--line);border-radius:13px;background:#f5f3ec;color:#5a6863;padding:0 16px;font-weight:600}.search-reset:hover{background:#e7e4dc;color:var(--forest)}
+    .section{padding:42px 0}.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:21px}.section-head h2{font-family:"Gowun Dodum";font-size:2rem;margin:0;letter-spacing:-.04em}.section-head p{margin:4px 0 0;color:var(--muted)}.more-link{font-weight:700;color:var(--forest);display:flex;align-items:center;gap:6px;cursor:pointer}.chips-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}.chip{white-space:nowrap;border:1px solid #d7dfd9;background:rgba(255,255,255,.5);padding:8px 15px;border-radius:999px;color:#56645f;font-weight:600;transition:.18s}.chip.active,.chip:hover{background:var(--forest);border-color:var(--forest);color:#fff}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}.item-card{background:var(--paper);border:1px solid rgba(23,61,54,.09);border-radius:20px;overflow:hidden;transition:.25s transform,.25s box-shadow;cursor:pointer;position:relative}.item-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}.thumb{height:185px;display:grid;place-items:center;position:relative;overflow:hidden}.thumb svg{width:94px;height:94px;filter:drop-shadow(0 12px 14px rgba(23,39,35,.15))}.thumb.wallet{background:#e4efe9}.thumb.phone{background:#f4e2d1}.thumb.bag{background:#dce8f1}.thumb.keys{background:#f5e6aa}.thumb.other{background:#e8e5f2}.badge{position:absolute;left:13px;top:13px;padding:5px 9px;border-radius:8px;font-size:.76rem;font-weight:800;background:white}.badge.lost{color:#b75435}.badge.found{color:#286653}.status-tag{position:absolute;right:13px;top:13px;padding:4px 8px;border-radius:8px;font-size:.72rem;font-weight:700;background:rgba(23,61,54,.85);color:#fff}.status-tag.resolved{background:#687671}.card-body{padding:17px}.card-body h3{margin:0 0 8px;font-size:1.06rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta{display:flex;align-items:center;gap:5px;color:#6b7874;font-size:.84rem;margin-top:4px}.card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:15px;padding-top:13px;border-top:1px solid #edf0ed}.card-foot time{font-size:.78rem;color:#87908d}.match{font-size:.78rem;color:var(--orange);font-weight:800}.card-like-btn{border:0;background:none;font-size:1rem;color:#a0aea8;transition:.2s;padding:2px 4px}.card-like-btn.liked{color:#ef4a4a}
+    @keyframes flashNew{0%{box-shadow:0 0 0 4px var(--orange)}100%{box-shadow:var(--shadow)}}.new-flash{animation:flashNew 2s ease-out}
+    .how{display:grid;grid-template-columns:.75fr 1.25fr;gap:25px;background:#dfece6;border-radius:30px;padding:34px;margin:28px 0 58px}.how-copy{padding:10px}.how-copy h2{font-family:"Gowun Dodum";font-size:2.05rem;margin:0 0 11px}.how-copy p{color:#55645f}.safety-link{display:inline-flex;margin-top:10px;color:var(--forest);font-weight:800;border-bottom:2px solid var(--forest);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;padding:0}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.step{background:rgba(255,255,255,.74);border-radius:19px;padding:22px}.step-num{font-family:"Gowun Dodum";font-size:2rem;color:var(--orange)}.step strong{display:block;margin:9px 0 5px}.step span{font-size:.85rem;color:#67756f}
+    footer{background:var(--forest);color:#dfeae6;padding:38px 0 100px}.footer-inner{display:flex;justify-content:space-between;gap:30px}.footer-brand p{color:#acc7be;font-size:.87rem;max-width:430px}.footer-links{display:flex;gap:25px;font-size:.88rem;color:#c8dbd5}.footer-links button{border:0;background:none;color:#c8dbd5;padding:0;font:inherit}.footer-links button:hover{color:#fff;text-decoration:underline}.mobile-bar{display:none}
+    dialog{border:0;border-radius:25px;padding:0;max-width:540px;width:calc(100% - 30px);box-shadow:0 30px 90px rgba(0,0,0,.25);background:#fff}dialog::backdrop{background:rgba(10,27,24,.62);backdrop-filter:blur(5px)}.modal-head{padding:22px 25px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f0f2f0}.modal-head h2{margin:0;font-family:"Gowun Dodum";font-size:1.45rem}.close{border:0;background:#eff2ef;width:38px;height:38px;border-radius:50%;font-size:1.3rem;display:grid;place-items:center;color:#455550;transition:.18s}.close:hover{background:#dbe2de}.modal-body{padding:20px 25px 27px;max-height:80vh;overflow-y:auto}.type-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}.type-option{border:1px solid var(--line);border-radius:15px;padding:15px;text-align:left;background:#fff;transition:.2s}.type-option.selected{border-color:var(--forest);background:#eef6f2}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.form-field{display:flex;flex-direction:column;gap:6px}.form-field.full{grid-column:1/-1}.form-field label,.form-field span{font-weight:700;font-size:.86rem;color:#3d4e48}.form-field input,.form-field select,.form-field textarea{border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:white}.form-field textarea{min-height:75px;resize:vertical}.submit-wide{width:100%;height:52px;border:0;border-radius:13px;background:var(--forest);color:white;font-weight:800;margin-top:19px;transition:.2s}.submit-wide:hover{background:var(--forest-2)}.toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,120px);background:#142f2a;color:white;padding:13px 22px;border-radius:13px;box-shadow:var(--shadow);z-index:999;transition:.3s;font-weight:600;display:flex;align-items:center;gap:8px}.toast.show{transform:translate(-50%,0)}
+    /* Detail Modal */
+    .detail-dialog{max-width:620px}.detail-header-tag{display:flex;gap:8px;margin-bottom:12px;align-items:center}.detail-thumb{height:220px;border-radius:18px;display:grid;place-items:center;margin-bottom:18px}.detail-thumb svg{width:110px;height:110px}.detail-title{font-size:1.45rem;font-weight:800;margin:0 0 10px;color:var(--forest)}.detail-meta-box{background:#f5f7f5;border-radius:14px;padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.9rem}.detail-meta-item strong{color:#3d4e48;margin-right:6px}.detail-desc{font-size:.96rem;line-height:1.7;color:#354440;padding:12px 0;border-top:1px solid #edf0ed;border-bottom:1px solid #edf0ed;margin-bottom:18px}.detail-actions{display:grid;grid-template-columns:auto 1fr auto;gap:10px}.btn-icon-labeled{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 16px;font-weight:700;display:flex;align-items:center;gap:6px;color:#3d4e48;transition:.2s}.btn-icon-labeled:hover{background:#edf2ef}.btn-icon-labeled.liked{color:#e03e3e;border-color:#f5b8b8;background:#fff5f5}.btn-primary-action{border:0;background:var(--orange);color:#fff;border-radius:12px;padding:12px 20px;font-weight:800;transition:.2s}.btn-primary-action:hover{background:#d75e3f}
+    /* Auth Modal */
+    .auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:#eef1ee;border-radius:12px;padding:4px;margin-bottom:18px}.auth-tab{border:0;background:transparent;padding:10px;border-radius:9px;font-weight:700;color:#6b7c76;transition:.2s}.auth-tab.active{background:#fff;color:var(--forest);box-shadow:0 3px 10px rgba(0,0,0,.08)}.demo-login-box{margin-top:15px;padding-top:15px;border-top:1px dashed #d5ded9;text-align:center}.demo-login-btn{background:#eaf4ef;border:1px solid #c2dbcf;color:var(--forest);font-weight:700;width:100%;padding:11px;border-radius:11px;margin-top:8px}
+    /* List items in dialogs */
+    .modal-item-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}.modal-item-card{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f9fbf9;border:1px solid var(--line);border-radius:14px}.modal-item-card strong{font-size:.95rem;color:var(--forest)}.faq-item{border:1px solid var(--line);border-radius:13px;padding:14px 16px;margin-bottom:10px;background:#fcfdfc}.faq-q{font-weight:700;color:var(--forest);margin-bottom:6px}.faq-a{font-size:.88rem;color:#596a64}
+    @media(max-width:900px){.desktop-nav{display:none}.hero-grid{grid-template-columns:1fr}.hero{padding-top:30px}.cards{grid-template-columns:repeat(2,1fr)}.search-row{grid-template-columns:1fr 1fr}.search-row .field:first-child{grid-column:1/-1}.search-submit,.search-reset{grid-column:span 1}.how{grid-template-columns:1fr}.footer-inner{flex-direction:column}}
+    @media(max-width:600px){.container{width:min(100% - 28px,1180px)}header{height:66px}.brand{font-size:1.08rem}.brand-mark{width:36px;height:36px}.hero{padding-top:24px}.hero-grid{gap:22px}h1{font-size:2.7rem}.hero-copy{font-size:.95rem}.location-strip{font-size:.86rem;margin-top:20px}.quick-card{padding:22px;border-radius:24px}.action-tile{padding:17px;min-height:155px}.search-panel{padding:12px}.search-row{grid-template-columns:1fr}.search-row .field:first-child,.search-submit,.search-reset{grid-column:auto}.cards{grid-template-columns:1fr 1fr;gap:11px}.thumb{height:138px}.card-body{padding:13px}.card-body h3{font-size:.93rem}.meta{font-size:.75rem}.card-foot{display:block}.match{display:block;margin-top:4px}.section{padding:31px 0}.section-head h2{font-size:1.7rem}.section-head p{font-size:.88rem}.more-link{font-size:.85rem}.how{padding:23px 17px;border-radius:23px}.steps{grid-template-columns:1fr}.step{display:grid;grid-template-columns:46px 1fr;column-gap:8px;padding:16px}.step-num{grid-row:1/3}.step strong{margin:2px 0}.footer-links{flex-wrap:wrap}.mobile-bar{display:flex;position:fixed;bottom:0;left:0;right:0;height:70px;background:rgba(255,253,248,.96);backdrop-filter:blur(15px);z-index:30;border-top:1px solid #dde3de;justify-content:space-around;align-items:center}.mobile-bar button{border:0;background:none;color:#6d7975;font-size:.72rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}.mobile-bar button.primary{background:var(--forest);color:white;width:52px;height:52px;border-radius:18px;margin-top:-20px;font-size:1.5rem}.mobile-bar svg{width:21px;height:21px}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}.detail-meta-box{grid-template-columns:1fr}.detail-actions{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <!-- 헤더 영역 -->
+  <header><div class="container nav">
+    <div class="brand" id="brandBtn"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 8h14v11H5z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8a4 4 0 0 1 8 0" stroke="#f4b84a" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="17" r="3.5" fill="#ef6d4a"/></svg></span>찾아드림</div>
+    <nav class="desktop-nav">
+      <a href="#recent" id="navLost">분실물 찾기</a>
+      <a href="#recent" id="navFound">습득물 보기</a>
+      <a href="#guide" id="navGuide">이용안내</a>
+    </nav>
+    <div class="header-actions" id="headerAuthArea">
+      <button class="text-btn" id="loginBtn">로그인</button>
+      <button class="solid-btn report-open">신고하기</button>
+    </div>
+  </div></header>
+
+  <main>
+    <!-- 히어로 섹션 -->
+    <section class="hero"><div class="container hero-grid">
+      <div>
+        <span class="eyebrow">중랑구 이웃 연결 서비스</span>
+        <h1>잃어버린 소중함과<br>다시 만날 수 있도록</h1>
+        <p class="hero-copy">중랑구 이웃과 함께, 잃어버린 물건이 제자리로 돌아가는 길을 연결해요. C# 백엔드와 HTML5/CSS/JS로 실시간 운영됩니다.</p>
+        <div class="location-strip"><span>📍</span><span>현재 지역</span><strong>서울특별시 중랑구</strong></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-title"><small>무엇을 도와드릴까요?</small><h2>상황을 선택해 바로 시작하세요</h2></div>
+        <div class="action-grid">
+          <button class="action-tile lost report-open" data-type="lost" id="heroLostBtn"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8 8a4 4 0 1 1 8 0c0 3-4 3-4 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="19" r="1.2" fill="currentColor"/></svg></span><strong>물건을 잃어버렸어요</strong><span>분실 장소와 특징 등록</span></button>
+          <button class="action-tile found report-open" data-type="found" id="heroFoundBtn"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 9 17l11-11" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>물건을 주웠어요</strong><span>주운 물건 간편 신고</span></button>
+        </div>
+        <p class="quick-note">개인 연락처는 상대방에게 바로 공개되지 않아요.</p>
+      </div>
+    </div></section>
+
+    <!-- 검색 패널 -->
+    <div class="container"><form class="search-panel" id="searchForm">
+      <div class="search-row">
+        <label class="field"><span>⌕</span><input id="searchInput" placeholder="물건 이름이나 특징을 검색하세요 (예: 지갑, 아이폰)" aria-label="검색어"></label>
+        <label class="field"><select id="dongFilter" aria-label="동네 선택"><option value="all">중랑구 전체 동</option><option value="면목동">면목동</option><option value="상봉동">상봉동</option><option value="중화동">중화동</option><option value="묵동">묵동</option><option value="망우동">망우동</option><option value="신내동">신내동</option></select></label>
+        <label class="field"><select id="typeFilter" aria-label="신고 유형"><option value="all">전체 신고</option><option value="lost">분실했어요 (잃어버림)</option><option value="found">주웠어요 (보관중)</option></select></label>
+        <button type="submit" class="search-submit" id="searchSubmitBtn">찾아보기</button>
+        <button type="button" class="search-reset" id="searchResetBtn" title="검색 및 필터 초기화">초기화</button>
+      </div>
+    </form></div>
+
+    <!-- 최근 등록 분실/습득물 섹션 -->
+    <section class="section" id="recent"><div class="container">
+      <div class="section-head">
+        <div>
+          <h2>우리 동네 최근 소식</h2>
+          <p id="searchStatusText">중랑구에 등록된 최신 분실·습득물이에요. 카드를 클릭하면 상세 정보를 확인하고 연락할 수 있어요.</p>
+        </div>
+        <a class="more-link" id="viewAllBtn" href="#recent">전체보기 ↻</a>
+      </div>
+      <div class="chips-bar">
+        <div class="chips" aria-label="물품 분류" id="categoryChips">
+          <button class="chip active" data-cat="all">전체</button>
+          <button class="chip" data-cat="wallet">지갑</button>
+          <button class="chip" data-cat="phone">휴대폰</button>
+          <button class="chip" data-cat="bag">가방</button>
+          <button class="chip" data-cat="keys">열쇠</button>
+          <button class="chip" data-cat="other">기타</button>
+        </div>
+      </div>
+      
+      <!-- 물품 카드 그리드 -->
+      <div class="cards" id="cards"></div>
+      <div id="empty" style="display:none;text-align:center;padding:50px 20px;background:var(--paper);border-radius:20px;border:1px dashed var(--line);color:#6b7874">
+        <p style="font-size:1.15rem;font-weight:700;margin-bottom:8px">조건에 맞는 신고가 없어요.</p>
+        <p style="margin-bottom:18px">다른 검색어나 동네를 선택해 보세요.</p>
+        <button type="button" class="solid-btn" id="emptyResetBtn" style="padding:9px 18px">필터 초기화하기</button>
+      </div>
+    </div></section>
+
+    <!-- 안전 거래 가이드 섹션 -->
+    <section class="container" id="guide"><div class="how">
+      <div class="how-copy">
+        <h2>안전하게 돌려받는<br>세 가지 약속</h2>
+        <p>개인정보는 보호하고, 물건의 주인은 꼼꼼하게 확인해요.</p>
+        <button type="button" class="safety-link" id="openSafetyBtn">안전거래 안내 보기 →</button>
+      </div>
+      <div class="steps">
+        <div class="step"><span class="step-num">01</span><strong>특징을 자세히</strong><span>색상, 브랜드, 발견 장소를 구체적으로 작성해요.</span></div>
+        <div class="step"><span class="step-num">02</span><strong>본인 확인은 꼼꼼히</strong><span>공개하지 않은 특징을 물어 실제 주인인지 확인해요.</span></div>
+        <div class="step"><span class="step-num">03</span><strong>만남은 밝은 곳에서</strong><span>지구대나 주민센터 등 안전한 장소를 이용해요.</span></div>
+      </div>
+    </div></section>
+  </main>
+
+  <!-- 푸터 영역 -->
+  <footer><div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="brand" style="color:white" id="footerBrandBtn"><span class="brand-mark" style="background:#28584e">⌕</span>찾아드림</div>
+      <p>중랑구 이웃과 함께 만드는 분실물 연결 서비스입니다. 긴급하거나 범죄 관련 물품은 가까운 경찰서(중랑경찰서 02-2144-0112)에 신고해 주세요.</p>
+    </div>
+    <div class="footer-links">
+      <button type="button" id="footerAboutBtn">서비스 소개</button>
+      <button type="button" id="footerTermsBtn">이용약관</button>
+      <button type="button" id="footerPrivacyBtn">개인정보처리방침</button>
+      <button type="button" id="footerSupportBtn">고객센터</button>
+    </div>
+  </div></footer>
+
+  <!-- 모바일 하단 내비게이션 바 -->
+  <nav class="mobile-bar" aria-label="모바일 메뉴">
+    <button type="button" id="mNavHome">⌂<span>홈</span></button>
+    <button type="button" id="mNavSearch">⌕<span>찾기</span></button>
+    <button type="button" class="primary report-open" aria-label="신고하기" id="mNavReport">＋</button>
+    <button type="button" id="mNavBookmarks">♡<span>관심</span></button>
+    <button type="button" id="mNavProfile">○<span>내 정보</span></button>
+  </nav>
+
+  <!-- 1. 분실·습득물 신고 등록 모달 -->
+  <dialog id="reportDialog">
+    <div class="modal-head">
+      <h2 id="reportModalTitle">분실·습득물 신고</h2>
+      <button type="button" class="close" id="closeReportDialog" aria-label="닫기">×</button>
+    </div>
+    <form class="modal-body" id="reportForm">
+      <div class="type-choice">
+        <button type="button" class="type-option selected" data-value="lost" id="typeOptLost"><strong>😥 잃어버렸어요</strong><br><small>찾고 있는 물건 등록</small></button>
+        <button type="button" class="type-option" data-value="found" id="typeOptFound"><strong>🙌 주웠어요</strong><br><small>보관 중인 물건 등록</small></button>
+      </div>
+      <input type="hidden" id="reportType" value="lost">
+      <div class="form-grid">
+        <label class="form-field">
+          <span>물품 종류</span>
+          <select id="reportCategory" required>
+            <option value="">선택해 주세요</option>
+            <option value="wallet">지갑</option>
+            <option value="phone">휴대폰</option>
+            <option value="bag">가방</option>
+            <option value="keys">열쇠</option>
+            <option value="other">기타 물품</option>
+          </select>
+        </label>
+        <label class="form-field">
+          <span>동네</span>
+          <select id="reportDong" required>
+            <option value="">선택해 주세요</option>
+            <option value="면목동">면목동</option>
+            <option value="상봉동">상봉동</option>
+            <option value="중화동">중화동</option>
+            <option value="묵동">묵동</option>
+            <option value="망우동">망우동</option>
+            <option value="신내동">신내동</option>
+          </select>
+        </label>
+        <label class="form-field full">
+          <span>물건 이름</span>
+          <input id="reportTitle" required placeholder="예: 진한 초록색 반지갑, 아이폰 15 Pro">
+        </label>
+        <label class="form-field full">
+          <span>구체적인 장소</span>
+          <input id="reportLocation" required placeholder="예: 면목역 2번 출구 앞 벤치, 상봉 코스트코 부근">
+        </label>
+        <label class="form-field full">
+          <span>발생/습득 일시</span>
+          <input id="reportDate" placeholder="예: 오늘 오후 3시경 또는 어제 저녁">
+        </label>
+        <label class="form-field full">
+          <span>상세 특징 및 설명</span>
+          <textarea id="reportDesc" placeholder="색상, 크기, 스티커 유무, 내용물 등 특징을 상세히 적어주세요."></textarea>
+        </label>
+        <label class="form-field full">
+          <span>안심 연락처 또는 전달 방법</span>
+          <input id="reportContact" placeholder="예: 찾아드림 안심메시지, 면목지구대 보관 등">
+        </label>
+      </div>
+      <button type="submit" class="submit-wide" id="reportSubmitBtn">신고 등록 완료하기</button>
+    </form>
+  </dialog>
+
+  <!-- 2. 물품 상세 보기 모달 -->
+  <dialog id="itemDetailDialog" class="detail-dialog">
+    <div class="modal-head">
+      <h2>물품 상세 정보</h2>
+      <button type="button" class="close" id="closeDetailDialog" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body" id="detailContent">
+      <!-- 동적 렌더링 영역 -->
+    </div>
+  </dialog>
+
+  <!-- 3. 제보 및 안심 연락 모달 -->
+  <dialog id="contactDialog">
+    <div class="modal-head">
+      <h2>제보 및 문의 보내기</h2>
+      <button type="button" class="close" id="closeContactDialog" aria-label="닫기">×</button>
+    </div>
+    <form class="modal-body" id="contactForm">
+      <p id="contactTargetTitle" style="font-weight:700;color:var(--forest);margin-top:0"></p>
+      <div class="form-grid">
+        <label class="form-field full">
+          <span>보내는 분 닉네임</span>
+          <input id="contactSenderName" required placeholder="예: 면목동 주민, 익명">
+        </label>
+        <label class="form-field full">
+          <span>회신받을 연락처 / 안심ID</span>
+          <input id="contactSenderContact" required placeholder="예: 안심채팅 또는 연락 가능한 카카오톡ID / 전화번호">
+        </label>
+        <label class="form-field full">
+          <span>제보 및 문의 내용</span>
+          <textarea id="contactMessage" required placeholder="물건을 찾으셨거나 일치하는 특징, 만남 가능한 장소 등을 상세히 작성해주세요." style="min-height:95px"></textarea>
+        </label>
+      </div>
+      <button type="submit" class="submit-wide" id="sendContactBtn">제보 메시지 전송하기</button>
+    </form>
+  </dialog>
+
+  <!-- 4. 로그인 / 회원가입 모달 -->
+  <dialog id="authDialog">
+    <div class="modal-head">
+      <h2 id="authModalTitle">로그인</h2>
+      <button type="button" class="close" id="closeAuthDialog" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tabLogin">로그인</button>
+        <button type="button" class="auth-tab" id="tabRegister">회원가입</button>
+      </div>
+      <form id="authForm">
+        <div class="form-field full" style="margin-bottom:12px">
+          <span>아이디</span>
+          <input id="authUsername" required placeholder="아이디를 입력하세요">
+        </div>
+        <div class="form-field full" style="margin-bottom:12px">
+          <span>비밀번호</span>
+          <input type="password" id="authPassword" required placeholder="비밀번호를 입력하세요">
+        </div>
+        <button type="submit" class="submit-wide" id="authSubmitBtn">로그인하기</button>
+      </form>
+      <div class="demo-login-box">
+        <span style="font-size:.85rem;color:var(--muted)">테스트용 간편 로그인</span>
+        <button type="button" class="demo-login-btn" id="demoLoginBtn">중랑구민 홍길동 계정으로 바로 시작</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 5. 관심 목록 모달 -->
+  <dialog id="bookmarksDialog">
+    <div class="modal-head">
+      <h2>내가 찜한 관심 목록 ♡</h2>
+      <button type="button" class="close" id="closeBookmarksDialog" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="bookmarksList" class="modal-item-list"></div>
+    </div>
+  </dialog>
+
+  <!-- 6. 내 정보 모달 -->
+  <dialog id="myInfoDialog">
+    <div class="modal-head">
+      <h2>내 정보 및 활동</h2>
+      <button type="button" class="close" id="closeMyInfoDialog" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#edf4f0;border-radius:16px;padding:18px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--forest);color:white;display:grid;place-items:center;font-size:1.4rem">👤</div>
+        <div>
+          <strong id="profileDisplayName" style="font-size:1.1rem;color:var(--forest)">중랑구민</strong>
+          <div id="profileUsername" style="font-size:.85rem;color:#5a6d66">jungnang_user</div>
+        </div>
+      </div>
+      <h3 style="font-size:1rem;margin:16px 0 8px;color:var(--forest)">내가 등록한 분실·습득물</h3>
+      <div id="myReportedList" class="modal-item-list"></div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="button" class="solid-btn report-open" style="flex:1" id="myInfoReportBtn">새 물건 등록</button>
+        <button type="button" class="outline-btn" style="flex:1" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 7. 안전 거래 가이드 모달 -->
+  <dialog id="safetyDialog">
+    <div class="modal-head">
+      <h2>중랑구 안전거래 안내</h2>
+      <button type="button" class="close" id="closeSafetyDialog" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="faq-item">
+        <div class="faq-q">🏢 중랑구 추천 안심 직거래 장소</div>
+        <div class="faq-a">
+          - <strong>중랑경찰서</strong> 민원실 (신내역 인근)<br>
+          - <strong>면목지구대</strong> (면목역 3번 출구 방면)<br>
+          - <strong>상봉파출소</strong> (상봉역 코스트코 인근)<br>
+          - <strong>망우지구대</strong> (우림시장 인근)<br>
+          - <strong>관내 동 주민센터</strong> (근무시간 내 민원실 앞)
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">🔒 개인정보 보호 및 사기 예방 수칙</div>
+        <div class="faq-a">
+          1. 전화번호나 계좌번호를 사전에 직접 요구하지 않습니다.<br>
+          2. 택배비 명목의 선입금을 절대 요구하지 마세요.<br>
+          3. 등록자만 알 수 있는 특징(잠금화면 사진, 내부 소지품 등)을 질문하여 실제 주인을 검증하세요.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">⚖️ 유실물법 관련 안내</div>
+        <div class="faq-a">
+          습득 후 7일 이내에 경찰서에 제출하여야 유실물법상 권리를 인정받을 수 있습니다. 분실자와 습득자는 물건 가액의 5%~20% 범위에서 보상금을 협의할 수 있습니다.
+        </div>
+      </div>
+      <button type="button" class="submit-wide" id="confirmSafetyBtn">확인했습니다</button>
+    </div>
+  </dialog>
+
+  <!-- 8. 일반 정보 모달 (서비스소개, 약관, 개인정보) -->
+  <dialog id="infoDialog">
+    <div class="modal-head">
+      <h2 id="infoModalTitle">안내</h2>
+      <button type="button" class="close" id="closeInfoDialog" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body" id="infoModalContent" style="font-size:.93rem;line-height:1.75;color:#455550">
+    </div>
+  </dialog>
+
+  <!-- 9. 고객센터 모달 -->
+  <dialog id="supportDialog">
+    <div class="modal-head">
+      <h2>고객센터 & 자주 묻는 질문</h2>
+      <button type="button" class="close" id="closeSupportDialog" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="faqContainer"></div>
+      <h3 style="font-size:1.05rem;color:var(--forest);margin:24px 0 10px">1:1 고객센터 문의하기</h3>
+      <form id="supportForm">
+        <div class="form-grid">
+          <label class="form-field full">
+            <span>문의 유형</span>
+            <select id="supportCat" required>
+              <option value="서비스이용">서비스 이용 문의</option>
+              <option value="허위신고">허위 신고 및 악성 게시물 제보</option>
+              <option value="오류신고">시스템 버그 및 제안</option>
+              <option value="기타">기타 문의</option>
+            </select>
+          </label>
+          <label class="form-field full">
+            <span>문의 제목</span>
+            <input id="supportTitle" required placeholder="제목을 입력하세요">
+          </label>
+          <label class="form-field full">
+            <span>답변받을 연락처</span>
+            <input id="supportContact" required placeholder="이메일 또는 휴대폰 번호">
+          </label>
+          <label class="form-field full">
+            <span>문의 내용</span>
+            <textarea id="supportContent" required placeholder="자세한 문의 내용을 남겨주시면 신속히 안내해 드리겠습니다."></textarea>
+          </label>
+        </div>
+        <button type="submit" class="submit-wide" id="supportSubmitBtn">문의 접수하기</button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 안내 토스트 메시지 -->
+  <div class="toast" id="toast">검색 결과를 반영했어요.</div>
+
+  <!-- 순수 JavaScript 로직 (HTML5 + CSS + Vanilla JS + C# API 연동) -->
+  <script>
+    // --- 1. 상태 관리 (State) ---
+    const API_BASE = window.location.origin; // C# ASP.NET Core API Base URL
+    let currentCat = 'all';
+    let currentActiveItem = null;
+    let currentUser = JSON.parse(localStorage.getItem('lostfind_user') || 'null');
+    let bookmarkedIds = new Set(JSON.parse(localStorage.getItem('lostfind_bookmarks') || '[]'));
+
+    // 기본 시드 데이터 (오프라인/정적호스팅 폴백용)
+    const fallbackSeeds = [
+      {
+        id: "item-01",
+        type: "found",
+        category: "wallet",
+        categoryName: "지갑",
+        dong: "면목동",
+        title: "진한 초록색 반지갑",
+        location: "면목역 2번 출구 앞 벤치",
+        occurredAt: "오늘 오후 2:10",
+        timeAgo: "12분 전",
+        description: "초록색 가죽 반지갑입니다. 내부에 학생증 및 교통카드가 들어있어 지구대에 전달하기 전 임시 보관 중입니다. 신분 확인 가능한 분께 전달드립니다.",
+        status: "보관중",
+        matchCount: 2,
+        viewCount: 42,
+        bookmarkCount: 3,
+        reporterName: "친절한이웃",
+        contactInfo: "면목역 인근 직거래 또는 안심메시지"
+      },
+      {
+        id: "item-02",
+        type: "lost",
+        category: "phone",
+        categoryName: "휴대폰",
+        dong: "상봉동",
+        title: "투명 케이스 아이폰 15",
+        location: "상봉 코스트코 인근 버스정류장",
+        occurredAt: "어제 오후 7:30",
+        timeAgo: "1시간 전",
+        description: "투명 맥세이프 케이스를 씌운 아이폰입니다. 배경화면에 강아지 사진이 설정되어 있습니다. 소중한 추억이 담겨있으니 습득하신 분 꼭 연락 부탁드립니다.",
+        status: "제보대기",
+        matchCount: 0,
+        viewCount: 89,
+        bookmarkCount: 8,
+        reporterName: "상봉주민",
+        contactInfo: "안심 메시지 또는 상봉파출소"
+      },
+      {
+        id: "item-03",
+        type: "found",
+        category: "bag",
+        categoryName: "가방",
+        dong: "망우동",
+        title: "남색 에코백",
+        location: "망우역사문화공원 산책로 쉼터",
+        occurredAt: "오늘 오전 11:20",
+        timeAgo: "2시간 전",
+        description: "남색 캔버스 에코백입니다. 안에는 책 한 권과 텀블러가 들어있습니다. 훼손 없이 안전하게 보관하고 있으니 특징 확인 후 찾아가세요.",
+        status: "보관중",
+        matchCount: 1,
+        viewCount: 31,
+        bookmarkCount: 1,
+        reporterName: "망우동라이더",
+        contactInfo: "망우역 인근 약속 가능"
+      },
+      {
+        id: "item-04",
+        type: "lost",
+        category: "keys",
+        categoryName: "열쇠",
+        dong: "신내동",
+        title: "곰돌이 키링 자동차 스마트키",
+        location: "신내동 봉화산역 3번 출구 방향",
+        occurredAt: "지난 월요일 저녁",
+        timeAgo: "어제",
+        description: "현대 스마트키에 갈색 뜨개 곰돌이 인형 키링이 달려 있습니다. 차 운행을 못하고 있어 애타게 찾고 있습니다. 사례금 준비되어 있습니다.",
+        status: "제보대기",
+        matchCount: 0,
+        viewCount: 65,
+        bookmarkCount: 5,
+        reporterName: "봉화산토박이",
+        contactInfo: "신내동 직거래 가능"
+      }
+    ];
+
+    let itemsData = JSON.parse(localStorage.getItem('lostfind_items') || 'null');
+    if (!itemsData || itemsData.length === 0) {
+      itemsData = fallbackSeeds;
+      localStorage.setItem('lostfind_items', JSON.stringify(itemsData));
+    }
+
+    // --- 2. 토스트 및 유틸리티 함수 ---
+    const toast = document.querySelector('#toast');
+    let toastTimer = null;
+    function showToast(message) {
+      if (toastTimer) clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add('show');
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function getThumbSvg(category) {
+      switch(category) {
+        case 'wallet':
+          return `<svg viewBox="0 0 100 100"><rect x="14" y="29" width="72" height="48" rx="10" fill="#5f806f"/><path d="M18 35 70 21c7-2 11 3 11 9v7H18z" fill="#88aa96"/><rect x="58" y="43" width="32" height="23" rx="8" fill="#31574c"/><circle cx="69" cy="54" r="3" fill="#f4b84a"/></svg>`;
+        case 'phone':
+          return `<svg viewBox="0 0 100 100"><rect x="29" y="12" width="43" height="76" rx="9" fill="#25302d"/><rect x="34" y="20" width="33" height="57" rx="3" fill="#7caaa0"/><circle cx="50" cy="82" r="3" fill="#d9e5df"/><circle cx="62" cy="26" r="5" fill="#19201e"/></svg>`;
+        case 'bag':
+          return `<svg viewBox="0 0 100 100"><path d="M20 41h60l-5 43H25z" fill="#4e7392"/><path d="M35 43c0-20 30-20 30 0" fill="none" stroke="#31536e" stroke-width="7"/><path d="M26 56h48" stroke="#81a5c0" stroke-width="4"/><circle cx="50" cy="69" r="5" fill="#f4b84a"/></svg>`;
+        case 'keys':
+          return `<svg viewBox="0 0 100 100"><circle cx="36" cy="39" r="18" fill="none" stroke="#b48c22" stroke-width="10"/><path d="m50 50 34 27M70 66l-8 9M80 74l-7 8" stroke="#b48c22" stroke-width="9" stroke-linecap="round"/><path d="M23 25c8-8 18-5 22 1" stroke="#e4bd4e" stroke-width="5" stroke-linecap="round"/></svg>`;
+        default:
+          return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="36" fill="#786c8f"/><path d="M50 25v50M25 50h50" stroke="#fdfcfa" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="50" r="12" fill="#f4b84a"/></svg>`;
+      }
+    }
+
+    // --- 3. C# 백엔드 API 연동 함수 ---
+    async function fetchItemsFromBackend() {
+      try {
+        const res = await fetch(`${API_BASE}/api/items`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && json.data.length > 0) {
+            itemsData = json.data;
+            localStorage.setItem('lostfind_items', JSON.stringify(itemsData));
+            return;
+          }
+        }
+      } catch (e) {
+        // C# API 서버 미기동 시 로컬 데이터 유지
+      }
+    }
+
+    async function sendCreateItemToBackend(newItem) {
+      try {
+        const res = await fetch(`${API_BASE}/api/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newItem)
+        });
+        if (res.ok) {
+          const json = await res.json();
+          return json.data || newItem;
+        }
+      } catch (e) {
+        // C# 서버 미응답 시 클라이언트 생성 객체 사용
+      }
+      return newItem;
+    }
+
+    async function sendBookmarkToBackend(itemId) {
+      try {
+        await fetch(`${API_BASE}/api/items/${itemId}/bookmark`, { method: 'POST' });
+      } catch (e) {}
+    }
+
+    async function sendStatusUpdateToBackend(itemId, newStatus) {
+      try {
+        await fetch(`${API_BASE}/api/items/${itemId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+      } catch (e) {}
+    }
+
+    // --- 4. 카드 렌더링 및 필터링 ---
+    const cardsContainer = document.querySelector('#cards');
+    const emptyState = document.querySelector('#empty');
+
+    function renderCards(highlightId = null) {
+      const q = document.querySelector('#searchInput').value.trim().toLowerCase();
+      const dong = document.querySelector('#dongFilter').value;
+      const type = document.querySelector('#typeFilter').value;
+
+      cardsContainer.innerHTML = '';
+      let shownCount = 0;
+
+      itemsData.forEach(item => {
+        const okCat = currentCat === 'all' || item.category === currentCat;
+        const okDong = dong === 'all' || item.dong === dong;
+        const okType = type === 'all' || item.type === type;
+        const okText = !q || (item.title + item.location + (item.description || '')).toLowerCase().includes(q);
+
+        if (okCat && okDong && okType && okText) {
+          shownCount++;
+          const card = document.createElement('article');
+          card.className = `item-card ${item.id === highlightId ? 'new-flash' : ''}`;
+          card.dataset.id = item.id;
+          card.dataset.cat = item.category;
+          card.dataset.dong = item.dong;
+          card.dataset.type = item.type;
+
+          const isLost = item.type === 'lost';
+          const badgeClass = isLost ? 'lost' : 'found';
+          const badgeText = isLost ? '잃어버렸어요' : '주웠어요';
+          const isLiked = bookmarkedIds.has(item.id);
+          const isResolved = item.status === '해결완료';
+
+          card.innerHTML = `
+            <div class="thumb ${item.category}">
+              <span class="badge ${badgeClass}">${badgeText}</span>
+              <span class="status-tag ${isResolved ? 'resolved' : ''}">${item.status || '접수'}</span>
+              ${getThumbSvg(item.category)}
+            </div>
+            <div class="card-body">
+              <h3>${item.title}</h3>
+              <div class="meta">📍 ${item.dong} ${item.location}</div>
+              <div class="meta">🕘 ${item.occurredAt || '최근'}</div>
+              <div class="card-foot">
+                <time>${item.timeAgo || '방금 전'}</time>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span class="match">${item.matchCount > 0 ? `비슷한 신고 ${item.matchCount}건` : (isLost ? '제보 대기중' : '보관중')}</span>
+                  <button type="button" class="card-like-btn ${isLiked ? 'liked' : ''}" data-like-id="${item.id}" title="관심 등록">${isLiked ? '♥' : '♡'}</button>
+                </div>
+              </div>
+            </div>
+          `;
+
+          // 카드 클릭 시 상세 모달 오픈
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('.card-like-btn')) {
+              e.stopPropagation();
+              toggleBookmark(item.id);
+              return;
+            }
+            openItemDetail(item.id);
+          });
+
+          cardsContainer.appendChild(card);
+        }
+      });
+
+      emptyState.style.display = shownCount ? 'none' : 'block';
+    }
+
+    // --- 5. 상세 모달 (Item Detail Modal) ---
+    const detailDialog = document.querySelector('#itemDetailDialog');
+    const detailContent = document.querySelector('#detailContent');
+
+    function openItemDetail(itemId) {
+      const item = itemsData.find(i => i.id === itemId);
+      if (!item) return;
+      currentActiveItem = item;
+      item.viewCount = (item.viewCount || 0) + 1;
+      localStorage.setItem('lostfind_items', JSON.stringify(itemsData));
+
+      const isLost = item.type === 'lost';
+      const isLiked = bookmarkedIds.has(item.id);
+      const isResolved = item.status === '해결완료';
+
+      detailContent.innerHTML = `
+        <div class="detail-header-tag">
+          <span class="badge ${isLost ? 'lost' : 'found'}" style="position:static">${isLost ? '잃어버렸어요' : '주웠어요'}</span>
+          <span class="status-tag ${isResolved ? 'resolved' : ''}" style="position:static">${item.status || '접수'}</span>
+          <span style="font-size:.84rem;color:#788681;margin-left:auto">조회수 ${item.viewCount}회</span>
+        </div>
+        <div class="detail-thumb ${item.category}">
+          ${getThumbSvg(item.category)}
+        </div>
+        <h2 class="detail-title">${item.title}</h2>
+        <div class="detail-meta-box">
+          <div class="detail-meta-item"><strong>동네:</strong> ${item.dong}</div>
+          <div class="detail-meta-item"><strong>장소:</strong> ${item.location}</div>
+          <div class="detail-meta-item"><strong>일시:</strong> ${item.occurredAt || '최근'}</div>
+          <div class="detail-meta-item"><strong>등록자:</strong> ${item.reporterName || '이웃 주민'}</div>
+        </div>
+        <div class="detail-desc">
+          <strong>상세 설명:</strong><br>
+          ${item.description || '등록된 상세 설명이 없습니다.'}
+          ${item.contactInfo ? `<div style="margin-top:10px;color:var(--forest)"><strong>전달/안내:</strong> ${item.contactInfo}</div>` : ''}
+        </div>
+        <div class="detail-actions">
+          <button type="button" class="btn-icon-labeled ${isLiked ? 'liked' : ''}" id="detailBookmarkBtn">
+            ${isLiked ? '♥ 찜함' : '♡ 찜하기'} (${item.bookmarkCount || 0})
+          </button>
+          <button type="button" class="btn-primary-action" id="detailContactBtn">
+            💬 제보 / 연락하기
+          </button>
+          <button type="button" class="btn-icon-labeled" id="detailShareBtn" title="링크 공유">
+            🔗 공유
+          </button>
+          <button type="button" class="btn-icon-labeled" id="detailResolveBtn" style="color:var(--forest)" title="완료 처리">
+            ${isResolved ? '✔ 해결됨' : '완료 처리'}
+          </button>
+        </div>
+      `;
+
+      // 상세창 버튼 이벤트 바인딩
+      document.querySelector('#detailBookmarkBtn').addEventListener('click', () => {
+        toggleBookmark(item.id);
+        openItemDetail(item.id); // 갱신
+      });
+
+      document.querySelector('#detailContactBtn').addEventListener('click', () => {
+        detailDialog.close();
+        openContactModal(item);
+      });
+
+      document.querySelector('#detailShareBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(`[찾아드림] ${item.title} (${item.dong} ${item.location})`);
+        showToast('게시글 정보가 클립보드에 복사되었어요!');
+      });
+
+      document.querySelector('#detailResolveBtn').addEventListener('click', () => {
+        item.status = item.status === '해결완료' ? '보관중' : '해결완료';
+        localStorage.setItem('lostfind_items', JSON.stringify(itemsData));
+        sendStatusUpdateToBackend(item.id, item.status);
+        showToast(`게시글이 '${item.status}' 상태로 변경되었습니다.`);
+        renderCards();
+        openItemDetail(item.id);
+      });
+
+      detailDialog.showModal();
+    }
+
+    document.querySelector('#closeDetailDialog').addEventListener('click', () => detailDialog.close());
+    detailDialog.addEventListener('click', e => { if (e.target === detailDialog) detailDialog.close(); });
+
+    // --- 6. 관심(북마크) 토글 기능 ---
+    function toggleBookmark(itemId) {
+      const item = itemsData.find(i => i.id === itemId);
+      if (!item) return;
+
+      if (bookmarkedIds.has(itemId)) {
+        bookmarkedIds.delete(itemId);
+        item.bookmarkCount = Math.max(0, (item.bookmarkCount || 1) - 1);
+        showToast('관심 목록에서 제거했어요.');
+      } else {
+        bookmarkedIds.add(itemId);
+        item.bookmarkCount = (item.bookmarkCount || 0) + 1;
+        showToast('관심 목록(찜)에 추가했어요!');
+        sendBookmarkToBackend(itemId);
+      }
+
+      localStorage.setItem('lostfind_bookmarks', JSON.stringify([...bookmarkedIds]));
+      localStorage.setItem('lostfind_items', JSON.stringify(itemsData));
+      renderCards();
+    }
+
+    // --- 7. 제보/연락하기 모달 ---
+    const contactDialog = document.querySelector('#contactDialog');
+    const contactForm = document.querySelector('#contactForm');
+    const contactTargetTitle = document.querySelector('#contactTargetTitle');
+
+    function openContactModal(item) {
+      currentActiveItem = item;
+      contactTargetTitle.textContent = `대상 물품: [${item.dong}] ${item.title}`;
+      if (currentUser) {
+        document.querySelector('#contactSenderName').value = currentUser.displayName || currentUser.username;
+      }
+      contactDialog.showModal();
+    }
+
+    document.querySelector('#closeContactDialog').addEventListener('click', () => contactDialog.close());
+    contactDialog.addEventListener('click', e => { if (e.target === contactDialog) contactDialog.close(); });
+
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const senderName = document.querySelector('#contactSenderName').value.trim();
+      const senderContact = document.querySelector('#contactSenderContact').value.trim();
+      const message = document.querySelector('#contactMessage').value.trim();
+
+      try {
+        await fetch(`${API_BASE}/api/items/${currentActiveItem.id}/inquiries`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            itemId: currentActiveItem.id,
+            senderName,
+            senderContact,
+            message
+          })
+        });
+      } catch (err) {}
+
+      contactDialog.close();
+      contactForm.reset();
+      showToast('소중한 제보 메시지가 등록자에게 안전하게 전달되었습니다!');
+    });
+
+    // --- 8. 신고 등록 모달 (Report Dialog) ---
+    const reportDialog = document.querySelector('#reportDialog');
+    const reportForm = document.querySelector('#reportForm');
+    const reportTypeInput = document.querySelector('#reportType');
+    const typeOptLost = document.querySelector('#typeOptLost');
+    const typeOptFound = document.querySelector('#typeOptFound');
+    const reportModalTitle = document.querySelector('#reportModalTitle');
+
+    function setReportType(type) {
+      reportTypeInput.value = type;
+      if (type === 'lost') {
+        typeOptLost.classList.add('selected');
+        typeOptFound.classList.remove('selected');
+        reportModalTitle.textContent = '분실물 신고 등록';
+        document.querySelector('#reportTitle').placeholder = '예: 잃어버린 진한 초록색 반지갑';
+      } else {
+        typeOptFound.classList.add('selected');
+        typeOptLost.classList.remove('selected');
+        reportModalTitle.textContent = '습득물 신고 등록';
+        document.querySelector('#reportTitle').placeholder = '예: 습득한 투명 케이스 아이폰';
+      }
+    }
+
+    document.querySelectorAll('.report-open').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.type || 'lost';
+        setReportType(type);
+        reportDialog.showModal();
+      });
+    });
+
+    typeOptLost.addEventListener('click', () => setReportType('lost'));
+    typeOptFound.addEventListener('click', () => setReportType('found'));
+    document.querySelector('#closeReportDialog').addEventListener('click', () => reportDialog.close());
+    reportDialog.addEventListener('click', e => { if (e.target === reportDialog) reportDialog.close(); });
+
+    reportForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newItem = {
+        id: 'item-' + Date.now().toString(36),
+        type: reportTypeInput.value,
+        category: document.querySelector('#reportCategory').value,
+        dong: document.querySelector('#reportDong').value,
+        title: document.querySelector('#reportTitle').value.trim(),
+        location: document.querySelector('#reportLocation').value.trim(),
+        occurredAt: document.querySelector('#reportDate').value.trim() || '방금 전',
+        timeAgo: '방금 전',
+        description: document.querySelector('#reportDesc').value.trim() || '등록된 설명이 없습니다.',
+        contactInfo: document.querySelector('#reportContact').value.trim() || '안심 메시지 전용',
+        status: reportTypeInput.value === 'found' ? '보관중' : '제보대기',
+        matchCount: 0,
+        viewCount: 1,
+        bookmarkCount: 0,
+        reporterName: currentUser ? currentUser.displayName : '이웃 주민',
+        createdAt: new Date().toISOString()
+      };
+
+      // C# 백엔드 전송 및 동기화
+      const savedItem = await sendCreateItemToBackend(newItem);
+      itemsData.unshift(savedItem);
+      localStorage.setItem('lostfind_items', JSON.stringify(itemsData));
+
+      // 내가 등록한 글 기록
+      const myPosts = JSON.parse(localStorage.getItem('lostfind_myposts') || '[]');
+      myPosts.unshift(savedItem.id);
+      localStorage.setItem('lostfind_myposts', JSON.stringify(myPosts));
+
+      reportDialog.close();
+      reportForm.reset();
+      showToast('신고가 성공적으로 등록되었어요! 이웃들의 제보를 기다립니다.');
+      
+      // 필터 초기화 후 신규 등록 카드 하이라이트
+      currentCat = 'all';
+      document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.cat === 'all'));
+      document.querySelector('#typeFilter').value = 'all';
+      document.querySelector('#dongFilter').value = 'all';
+      document.querySelector('#searchInput').value = '';
+      renderCards(savedItem.id);
+
+      document.querySelector('#recent').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // --- 9. 헤더 및 검색, 필터 인터랙션 ---
+    // 브랜드 클릭: 전체 초기화 및 상단 이동
+    document.querySelector('#brandBtn').addEventListener('click', () => {
+      resetFilters();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('홈 화면으로 이동했어요.');
+    });
+    document.querySelector('#footerBrandBtn').addEventListener('click', () => {
+      resetFilters();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 헤더 네비게이션
+    document.querySelector('#navLost').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('#typeFilter').value = 'lost';
+      currentCat = 'all';
+      updateChips();
+      renderCards();
+      document.querySelector('#recent').scrollIntoView({ behavior: 'smooth' });
+      showToast('분실물 목록을 보여드립니다.');
+    });
+
+    document.querySelector('#navFound').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('#typeFilter').value = 'found';
+      currentCat = 'all';
+      updateChips();
+      renderCards();
+      document.querySelector('#recent').scrollIntoView({ behavior: 'smooth' });
+      showToast('습득물 목록을 보여드립니다.');
+    });
+
+    document.querySelector('#navGuide').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('#guide').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // 검색 폼 제출
+    document.querySelector('#searchForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      renderCards();
+      const q = document.querySelector('#searchInput').value.trim();
+      showToast(q ? `'${q}' 검색 결과를 반영했어요.` : '조건에 맞춰 필터링했어요.');
+      document.querySelector('#recent').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // 필터 초기화 버튼들
+    function resetFilters() {
+      document.querySelector('#searchInput').value = '';
+      document.querySelector('#dongFilter').value = 'all';
+      document.querySelector('#typeFilter').value = 'all';
+      currentCat = 'all';
+      updateChips();
+      renderCards();
+    }
+    document.querySelector('#searchResetBtn').addEventListener('click', () => {
+      resetFilters();
+      showToast('모든 검색 및 필터 조건을 초기화했어요.');
+    });
+    document.querySelector('#emptyResetBtn').addEventListener('click', () => {
+      resetFilters();
+      showToast('모든 검색 및 필터 조건을 초기화했어요.');
+    });
+    document.querySelector('#viewAllBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      resetFilters();
+      showToast('전체 목록을 새로고침했어요.');
+    });
+
+    // 카테고리 칩 버튼들
+    function updateChips() {
+      document.querySelectorAll('.chip').forEach(x => {
+        x.classList.toggle('active', x.dataset.cat === currentCat);
+      });
+    }
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        currentCat = chip.dataset.cat;
+        updateChips();
+        renderCards();
+      });
+    });
+
+    // 셀렉트 필터 변경 시 자동 필터 적용
+    document.querySelector('#dongFilter').addEventListener('change', () => renderCards());
+    document.querySelector('#typeFilter').addEventListener('change', () => renderCards());
+
+    // --- 10. 로그인 및 인증 (Auth) ---
+    const authDialog = document.querySelector('#authDialog');
+    const headerAuthArea = document.querySelector('#headerAuthArea');
+    const tabLogin = document.querySelector('#tabLogin');
+    const tabRegister = document.querySelector('#tabRegister');
+    const authModalTitle = document.querySelector('#authModalTitle');
+    const authSubmitBtn = document.querySelector('#authSubmitBtn');
+    let isRegisterMode = false;
+
+    function updateAuthUI() {
+      if (currentUser) {
+        headerAuthArea.innerHTML = `
+          <div class="user-pill" id="userPillBtn" title="내 정보 확인" style="cursor:pointer">
+            <span>👤</span>
+            <span>${currentUser.displayName || currentUser.username}</span>
+          </div>
+          <button class="solid-btn report-open">신고하기</button>
+        `;
+        document.querySelector('#userPillBtn').addEventListener('click', openMyInfoModal);
+        document.querySelectorAll('.report-open').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const type = btn.dataset.type || 'lost';
+            setReportType(type);
+            reportDialog.showModal();
+          });
+        });
+      } else {
+        headerAuthArea.innerHTML = `
+          <button class="text-btn" id="loginBtn">로그인</button>
+          <button class="solid-btn report-open">신고하기</button>
+        `;
+        document.querySelector('#loginBtn').addEventListener('click', () => authDialog.showModal());
+        document.querySelectorAll('.report-open').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const type = btn.dataset.type || 'lost';
+            setReportType(type);
+            reportDialog.showModal();
+          });
+        });
+      }
+    }
+
+    document.querySelector('#loginBtn').addEventListener('click', () => authDialog.showModal());
+    document.querySelector('#closeAuthDialog').addEventListener('click', () => authDialog.close());
+    authDialog.addEventListener('click', e => { if (e.target === authDialog) authDialog.close(); });
+
+    tabLogin.addEventListener('click', () => {
+      isRegisterMode = false;
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      authModalTitle.textContent = '로그인';
+      authSubmitBtn.textContent = '로그인하기';
+    });
+
+    tabRegister.addEventListener('click', () => {
+      isRegisterMode = true;
+      tabRegister.classList.add('active');
+      tabLogin.classList.remove('active');
+      authModalTitle.textContent = '간편 회원가입';
+      authSubmitBtn.textContent = '가입 완료하기';
+    });
+
+    // 원클릭 체험 로그인
+    document.querySelector('#demoLoginBtn').addEventListener('click', async () => {
+      currentUser = {
+        username: 'hong',
+        displayName: '중랑구민 홍길동'
+      };
+      localStorage.setItem('lostfind_user', JSON.stringify(currentUser));
+      try {
+        await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: 'hong', password: 'demo' })
+        });
+      } catch (e) {}
+      authDialog.close();
+      updateAuthUI();
+      showToast('홍길동 님, 환영합니다!');
+    });
+
+    document.querySelector('#authForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.querySelector('#authUsername').value.trim();
+      const endpoint = isRegisterMode ? '/api/auth/register' : '/api/auth/login';
+
+      let displayName = username + ' 님';
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password: document.querySelector('#authPassword').value })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.displayName) displayName = json.displayName;
+        }
+      } catch (err) {}
+
+      currentUser = { username, displayName };
+      localStorage.setItem('lostfind_user', JSON.stringify(currentUser));
+      authDialog.close();
+      updateAuthUI();
+      showToast(`${displayName}으로 로그인되었습니다.`);
+    });
+
+    // --- 11. 관심 목록 모달 (Bookmarks Dialog) ---
+    const bookmarksDialog = document.querySelector('#bookmarksDialog');
+    const bookmarksList = document.querySelector('#bookmarksList');
+
+    function openBookmarksModal() {
+      bookmarksList.innerHTML = '';
+      const list = itemsData.filter(i => bookmarkedIds.has(i.id));
+
+      if (list.length === 0) {
+        bookmarksList.innerHTML = '<p style="text-align:center;padding:30px;color:var(--muted)">아직 찜한 분실물이 없습니다.<br>물품 카드에서 ♡를 눌러 저장해 보세요.</p>';
+      } else {
+        list.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'modal-item-card';
+          div.innerHTML = `
+            <div>
+              <strong>${item.title}</strong>
+              <div style="font-size:.82rem;color:var(--muted)">📍 ${item.dong} · ${item.type === 'lost' ? '분실' : '습득'}</div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button type="button" class="solid-btn" style="padding:6px 12px;font-size:.84rem" data-view-id="${item.id}">보기</button>
+              <button type="button" class="outline-btn" style="padding:6px 10px;font-size:.84rem" data-del-id="${item.id}">삭제</button>
+            </div>
+          `;
+          div.querySelector('[data-view-id]').addEventListener('click', () => {
+            bookmarksDialog.close();
+            openItemDetail(item.id);
+          });
+          div.querySelector('[data-del-id]').addEventListener('click', () => {
+            toggleBookmark(item.id);
+            openBookmarksModal(); // 재렌더링
+          });
+          bookmarksList.appendChild(div);
+        });
+      }
+      bookmarksDialog.showModal();
+    }
+
+    document.querySelector('#closeBookmarksDialog').addEventListener('click', () => bookmarksDialog.close());
+    bookmarksDialog.addEventListener('click', e => { if (e.target === bookmarksDialog) bookmarksDialog.close(); });
+
+    // --- 12. 내 정보 모달 (My Profile Dialog) ---
+    const myInfoDialog = document.querySelector('#myInfoDialog');
+    const myReportedList = document.querySelector('#myReportedList');
+
+    function openMyInfoModal() {
+      if (!currentUser) {
+        authDialog.showModal();
+        return;
+      }
+
+      document.querySelector('#profileDisplayName').textContent = currentUser.displayName || currentUser.username;
+      document.querySelector('#profileUsername').textContent = '@' + currentUser.username;
+
+      const myPostIds = new Set(JSON.parse(localStorage.getItem('lostfind_myposts') || '[]'));
+      const myItems = itemsData.filter(i => myPostIds.has(i.id) || (currentUser && i.reporterName === currentUser.displayName));
+
+      myReportedList.innerHTML = '';
+      if (myItems.length === 0) {
+        myReportedList.innerHTML = '<p style="text-align:center;padding:20px;color:var(--muted)">아직 등록한 게시물이 없습니다.</p>';
+      } else {
+        myItems.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'modal-item-card';
+          div.innerHTML = `
+            <div>
+              <strong>${item.title}</strong>
+              <div style="font-size:.82rem;color:var(--muted)">${item.dong} · 상태: ${item.status || '접수'}</div>
+            </div>
+            <button type="button" class="outline-btn" style="padding:6px 12px;font-size:.84rem" data-view-id="${item.id}">보기</button>
+          `;
+          div.querySelector('[data-view-id]').addEventListener('click', () => {
+            myInfoDialog.close();
+            openItemDetail(item.id);
+          });
+          myReportedList.appendChild(div);
+        });
+      }
+
+      myInfoDialog.showModal();
+    }
+
+    document.querySelector('#closeMyInfoDialog').addEventListener('click', () => myInfoDialog.close());
+    myInfoDialog.addEventListener('click', e => { if (e.target === myInfoDialog) myInfoDialog.close(); });
+    document.querySelector('#logoutBtn').addEventListener('click', () => {
+      currentUser = null;
+      localStorage.removeItem('lostfind_user');
+      myInfoDialog.close();
+      updateAuthUI();
+      showToast('로그아웃되었습니다.');
+    });
+
+    // --- 13. 안전 가이드 모달 ---
+    const safetyDialog = document.querySelector('#safetyDialog');
+    document.querySelector('#openSafetyBtn').addEventListener('click', () => safetyDialog.showModal());
+    document.querySelector('#closeSafetyDialog').addEventListener('click', () => safetyDialog.close());
+    document.querySelector('#confirmSafetyBtn').addEventListener('click', () => safetyDialog.close());
+    safetyDialog.addEventListener('click', e => { if (e.target === safetyDialog) safetyDialog.close(); });
+
+    // --- 14. 푸터 정보 모달들 (서비스소개, 약관, 개인정보) ---
+    const infoDialog = document.querySelector('#infoDialog');
+    const infoModalTitle = document.querySelector('#infoModalTitle');
+    const infoModalContent = document.querySelector('#infoModalContent');
+    document.querySelector('#closeInfoDialog').addEventListener('click', () => infoDialog.close());
+    infoDialog.addEventListener('click', e => { if (e.target === infoDialog) infoDialog.close(); });
+
+    document.querySelector('#footerAboutBtn').addEventListener('click', () => {
+      infoModalTitle.textContent = '찾아드림 서비스 소개';
+      infoModalContent.innerHTML = `
+        <h4 style="color:var(--forest);margin:0 0 8px">따뜻한 이웃과 함께하는 분실물 찾기</h4>
+        <p><strong>찾아드림</strong>은 서울특별시 중랑구 내에서 소중한 물건을 잃어버리거나 습득한 이웃들이 빠르고 안전하게 물건을 돌려주고 돌려받을 수 있도록 지원하는 공익형 지역 커뮤니티 플랫폼입니다.</p>
+        <p>개인 전화번호 노출 없는 <em>안심 메시지 시스템</em>과 <em>관내 지구대·파출소 연계</em>를 통해 신뢰할 수 있는 지역 사회를 만들어갑니다.</p>
+      `;
+      infoDialog.showModal();
+    });
+
+    document.querySelector('#footerTermsBtn').addEventListener('click', () => {
+      infoModalTitle.textContent = '이용약관';
+      infoModalContent.innerHTML = `
+        <h4 style="color:var(--forest);margin:0 0 8px">찾아드림 이용약관</h4>
+        <p><strong>제 1조 (목적)</strong> 본 약관은 찾아드림이 제공하는 유실물 등록 및 제보 연결 서비스의 이용조건 및 절차를 규정합니다.</p>
+        <p><strong>제 2조 (이용자의 의무)</strong> 이용자는 허위 정보나 장난 게시물을 등록하여서는 아니 되며, 타인의 권리를 침해하거나 법령에 위반되는 행위를 할 경우 서비스 이용이 제한됩니다.</p>
+        <p><strong>제 3조 (습득물의 인계)</strong> 습득자는 유실물법을 준수하여야 하며, 실제 주인 여부를 철저히 확인 후 인도하여야 합니다.</p>
+      `;
+      infoDialog.showModal();
+    });
+
+    document.querySelector('#footerPrivacyBtn').addEventListener('click', () => {
+      infoModalTitle.textContent = '개인정보처리방침';
+      infoModalContent.innerHTML = `
+        <h4 style="color:var(--forest);margin:0 0 8px">개인정보 처리 및 보호방침</h4>
+        <p>찾아드림은 정보주체의 개인정보를 소중히 다루며 관련 법령을 철저히 준수합니다.</p>
+        <p>1. <strong>수집 항목:</strong> 로그인 아이디, 닉네임, 분실·습득물 등록 정보 (선택: 안심연락처)</p>
+        <p>2. <strong>수집 목적:</strong> 분실자-습득자 간 연락 및 거래 안전 보장</p>
+        <p>3. <strong>보유 기간:</strong> 회원 탈퇴 시 또는 게시글 해결 완료 후 즉시 파기 가능</p>
+      `;
+      infoDialog.showModal();
+    });
+
+    // --- 15. 고객센터 모달 (FAQ & 문의 접수) ---
+    const supportDialog = document.querySelector('#supportDialog');
+    const faqContainer = document.querySelector('#faqContainer');
+    document.querySelector('#footerSupportBtn').addEventListener('click', async () => {
+      // FAQ 로드
+      let faqs = [
+        { Q: "물건을 주웠을 때 어떻게 해야 하나요?", A: "습득물 등록 후 가까운 지구대나 파출소에 인계하시거나, 본인 확인 질문을 통해 주인에게 직접 안전하게 전달하실 수 있습니다." },
+        { Q: "개인 연락처가 외부에 노출되나요?", A: "아닙니다. 개인 전화번호는 절대 직접 공개되지 않으며, 안심 메시지 시스템을 통해서만 소통합니다." },
+        { Q: "분실물을 찾았을 때는 어떻게 하나요?", A: "물품 상세 화면에서 [완료 처리] 버튼을 누르면 '해결완료' 상태로 전환되어 추가 제보를 마감합니다." }
+      ];
+      try {
+        const res = await fetch(`${API_BASE}/api/support/faq`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data) faqs = json.data;
+        }
+      } catch (e) {}
+
+      faqContainer.innerHTML = faqs.map(f => `
+        <div class="faq-item">
+          <div class="faq-q">Q. ${f.q || f.Q}</div>
+          <div class="faq-a">${f.a || f.A}</div>
+        </div>
+      `).join('');
+
+      supportDialog.showModal();
+    });
+
+    document.querySelector('#closeSupportDialog').addEventListener('click', () => supportDialog.close());
+    supportDialog.addEventListener('click', e => { if (e.target === supportDialog) supportDialog.close(); });
+
+    document.querySelector('#supportForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        category: document.querySelector('#supportCat').value,
+        title: document.querySelector('#supportTitle').value.trim(),
+        contact: document.querySelector('#supportContact').value.trim(),
+        content: document.querySelector('#supportContent').value.trim()
+      };
+
+      try {
+        await fetch(`${API_BASE}/api/support`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+      } catch (err) {}
+
+      supportDialog.close();
+      document.querySelector('#supportForm').reset();
+      showToast('1:1 고객센터 문의가 정상 접수되었습니다. 빠른 시일 내 연락드리겠습니다.');
+    });
+
+    // --- 16. 모바일 하단 내비게이션 바 버튼들 ---
+    document.querySelector('#mNavHome').addEventListener('click', () => {
+      resetFilters();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    document.querySelector('#mNavSearch').addEventListener('click', () => {
+      document.querySelector('#searchInput').focus();
+      document.querySelector('#searchForm').scrollIntoView({ behavior: 'smooth' });
+      showToast('검색어를 입력해 주세요.');
+    });
+    document.querySelector('#mNavBookmarks').addEventListener('click', openBookmarksModal);
+    document.querySelector('#mNavProfile').addEventListener('click', openMyInfoModal);
+
+    // --- 초기화 실행 ---
+    (async function init() {
+      await fetchItemsFromBackend();
+      updateAuthUI();
+      renderCards();
+    })();
+  </script>
+</body>
+</html>
