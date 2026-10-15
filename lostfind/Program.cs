@@ -1,5 +1,11 @@
 ﻿using System.Collections.Concurrent;
+using System.Globalization;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using LostFind.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -18,6 +24,15 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+// 서울 열린데이터광장 호출용 클라이언트입니다.
+// 인증키가 요청 경로에 포함되므로 기본 HttpClient 로깅에 노출되지 않도록
+// 애플리케이션 수명 동안 하나의 클라이언트를 재사용합니다.
+builder.Services.AddSingleton(new HttpClient
+{
+    Timeout = TimeSpan.FromSeconds(20)
+});
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
@@ -43,6 +58,10 @@ else
     app.UseDefaultFiles();
     app.UseStaticFiles();
 }
+
+app.MapGet("/items", () => Results.File(
+    Path.Combine(distPath, "items.html"),
+    "text/html; charset=utf-8"));
 
 // In-Memory Thread-safe Database
 var items = new ConcurrentDictionary<string, LostFoundItem>();
@@ -210,7 +229,449 @@ string GetCategoryName(string cat) => cat switch
     _ => "기타"
 };
 
+string NormalizePublicDescription(string value)
+{
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        return string.Empty;
+    }
+
+    var withLineBreaks = Regex.Replace(value, @"<br\s*/?>", "\n", RegexOptions.IgnoreCase);
+    var withoutTags = Regex.Replace(withLineBreaks, @"<[^>]+>", string.Empty);
+    return WebUtility.HtmlDecode(withoutTags).Trim();
+}
+
+bool IsPublicItemFrom2025OrLater(SeoulLostArticleRow row)
+{
+    static bool IsAllowedYear(string value) =>
+        value.Length >= 4 &&
+        int.TryParse(value[..4], out var year) &&
+        year >= 2025;
+
+    return IsAllowedYear(row.RegisteredDate) || IsAllowedYear(row.ReceivedDate);
+}
+
+async Task<List<SeoulPublicLostItem>> FetchLost112ItemsAsync(
+    HttpClient httpClient,
+    IConfiguration configuration,
+    CancellationToken cancellationToken)
+{
+    var apiKey = configuration["DATA_GO_KR_API_KEY"] ?? configuration["LOST112_API_KEY"];
+    if (string.IsNullOrWhiteSpace(apiKey))
+    {
+        return [];
+    }
+
+    var endpoint = configuration["LOST112_API_BASE_URL"]
+        ?? "https://apis.data.go.kr/1320000/LosfundInfoInqireService/getLosfundInfoAccToClAreaPd";
+    var serviceKey = apiKey.Contains('%') ? apiKey : Uri.EscapeDataString(apiKey);
+    var requestUrl = $"{endpoint}?serviceKey={serviceKey}&START_YMD=20250101&END_YMD={DateTime.Today:yyyyMMdd}&pageNo=1&numOfRows=500";
+
+    try
+    {
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+        using var response = await httpClient.GetAsync(requestUrl, timeoutCts.Token);
+        if (!response.IsSuccessStatusCode)
+        {
+            return [];
+        }
+
+        var xml = await response.Content.ReadAsStringAsync(timeoutCts.Token);
+        var document = XDocument.Parse(xml);
+
+        static string Value(XElement item, string name) =>
+            item.Elements().FirstOrDefault(element =>
+                element.Name.LocalName.Equals(name, StringComparison.OrdinalIgnoreCase))?.Value.Trim() ?? string.Empty;
+
+        static string FormatDate(string value) =>
+            value.Length == 8 && DateOnly.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+                ? date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                : value;
+
+        return document.Descendants()
+            .Where(element => element.Name.LocalName.Equals("item", StringComparison.OrdinalIgnoreCase))
+            .Select(item =>
+            {
+                var place = Value(item, "fdPlace");
+                var storage = Value(item, "cstdyPlace");
+                var organization = Value(item, "depPlace");
+                if (string.IsNullOrWhiteSpace(organization)) organization = Value(item, "orgNm");
+
+                return new SeoulPublicLostItem
+                {
+                    Id = Value(item, "atcId"),
+                    Status = "보관 중",
+                    RegisteredDate = FormatDate(Value(item, "fdYmd")),
+                    ReceivedDate = FormatDate(Value(item, "fdYmd")),
+                    Description = NormalizePublicDescription(Value(item, "uniq")),
+                    StoragePlace = string.IsNullOrWhiteSpace(storage)
+                        ? place
+                        : string.IsNullOrWhiteSpace(place) || storage.Contains(place, StringComparison.OrdinalIgnoreCase)
+                            ? storage
+                            : $"{storage} (습득: {place})",
+                    ItemName = Value(item, "fdPrdtNm"),
+                    ItemCategory = Value(item, "prdtClNm"),
+                    ReceivingOrganization = organization,
+                    Source = "경찰청 LOST112"
+                };
+            })
+            .Where(item =>
+                item.RegisteredDate.Length >= 4 &&
+                int.TryParse(item.RegisteredDate[..4], out var year) && year >= 2025 &&
+                $"{item.StoragePlace} {item.ReceivingOrganization} {item.Description}".Contains("중랑", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+    catch
+    {
+        return [];
+    }
+}
+
+List<SeoulPublicLostItem> MergePublicItems(
+    IEnumerable<SeoulPublicLostItem> seoulItems,
+    IEnumerable<SeoulPublicLostItem> lost112Items)
+{
+    static string Normalize(string value) =>
+        Regex.Replace(value ?? string.Empty, "[^0-9A-Za-z가-힣]", string.Empty).ToLowerInvariant();
+
+    var merged = new List<SeoulPublicLostItem>();
+    foreach (var incoming in seoulItems.Concat(lost112Items))
+    {
+        var idKey = Normalize(incoming.Id);
+        var fingerprint = $"{Normalize(incoming.ItemName)}|{incoming.RegisteredDate.Replace("-", string.Empty)}|{Normalize(incoming.StoragePlace)}";
+        var existing = merged.FirstOrDefault(item =>
+            (!string.IsNullOrWhiteSpace(idKey) && Normalize(item.Id) == idKey) ||
+            $"{Normalize(item.ItemName)}|{item.RegisteredDate.Replace("-", string.Empty)}|{Normalize(item.StoragePlace)}" == fingerprint);
+
+        if (existing is null)
+        {
+            merged.Add(incoming);
+            continue;
+        }
+
+        if (string.IsNullOrWhiteSpace(existing.Description)) existing.Description = incoming.Description;
+        if (string.IsNullOrWhiteSpace(existing.StoragePlace)) existing.StoragePlace = incoming.StoragePlace;
+        if (string.IsNullOrWhiteSpace(existing.ReceivingOrganization)) existing.ReceivingOrganization = incoming.ReceivingOrganization;
+        if (string.IsNullOrWhiteSpace(existing.ItemCategory)) existing.ItemCategory = incoming.ItemCategory;
+        if (string.IsNullOrWhiteSpace(existing.ReceivedDate)) existing.ReceivedDate = incoming.ReceivedDate;
+        if (!existing.Source.Contains(incoming.Source, StringComparison.OrdinalIgnoreCase))
+        {
+            existing.Source = $"{existing.Source} · {incoming.Source}";
+        }
+    }
+
+    return merged;
+}
+
 // --- REST API Endpoints ---
+
+// 서울 열린데이터광장 대중교통 습득물 조회
+// Cloudtype 환경변수: SEOUL_OPEN_API_KEY
+app.MapGet("/api/public-items", async (
+    int? start,
+    int? end,
+    string? managementNumber,
+    string? registeredDate,
+    string? q,
+    bool? refresh,
+    HttpClient httpClient,
+    IConfiguration configuration,
+    IMemoryCache cache,
+    CancellationToken cancellationToken) =>
+{
+    var apiKey = configuration["SEOUL_OPEN_API_KEY"];
+    if (string.IsNullOrWhiteSpace(apiKey) && app.Environment.IsDevelopment())
+    {
+        apiKey = "6175714668746c6431323246744c5a41";
+    }
+    if (string.IsNullOrWhiteSpace(apiKey))
+    {
+        return Results.Json(new
+        {
+            success = false,
+            message = "서울시 Open API 인증키가 설정되지 않았습니다."
+        }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+
+    var startIndex = start ?? 1;
+    var endIndex = end ?? 100;
+    if (apiKey.Equals("sample", StringComparison.OrdinalIgnoreCase))
+    {
+        endIndex = Math.Min(endIndex, 5);
+    }
+    if (startIndex < 1 || endIndex < startIndex || endIndex - startIndex + 1 > 1000)
+    {
+        return Results.BadRequest(new
+        {
+            success = false,
+            message = "조회 범위는 1 이상이며 한 번에 최대 1,000건까지 가능합니다."
+        });
+    }
+
+    var cacheKey = $"public-items:{startIndex}:{endIndex}:{managementNumber}:{registeredDate}:{q}";
+    if (refresh is not true && cache.TryGetValue<PublicItemsCacheEntry>(cacheKey, out var cached) && cached is not null)
+    {
+        return Results.Ok(new
+        {
+            success = true,
+            sources = new[] { "서울 열린데이터광장", "경찰청 LOST112" },
+            total = cached.Total,
+            count = cached.Data.Count,
+            cutoffYear = 2025,
+            adaptive = true,
+            cached = true,
+            updatedAt = cached.UpdatedAt,
+            start = startIndex,
+            end = endIndex,
+            data = cached.Data
+        });
+    }
+
+    if (!string.IsNullOrWhiteSpace(registeredDate) &&
+        !DateOnly.TryParseExact(
+            registeredDate,
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out _))
+    {
+        return Results.BadRequest(new
+        {
+            success = false,
+            message = "등록일자는 yyyy-MM-dd 형식으로 입력해주세요."
+        });
+    }
+
+    var baseUrl = configuration["SEOUL_OPEN_API_BASE_URL"];
+    if (string.IsNullOrWhiteSpace(baseUrl))
+    {
+        baseUrl = "http://openapi.seoul.go.kr:8088";
+    }
+
+    var requestUrl = $"{baseUrl.TrimEnd('/')}/{Uri.EscapeDataString(apiKey)}/json/lostArticleInfo/{startIndex}/{endIndex}";
+
+    if (!string.IsNullOrWhiteSpace(managementNumber) || !string.IsNullOrWhiteSpace(registeredDate))
+    {
+        var managementSegment = string.IsNullOrWhiteSpace(managementNumber)
+            ? "%20"
+            : Uri.EscapeDataString(managementNumber.Trim());
+        requestUrl += $"/{managementSegment}";
+
+        if (!string.IsNullOrWhiteSpace(registeredDate))
+        {
+            requestUrl += $"/{Uri.EscapeDataString(registeredDate)}";
+        }
+    }
+
+    requestUrl += "/";
+
+    var requestedCount = endIndex - startIndex + 1;
+    var lost112Task = FetchLost112ItemsAsync(httpClient, configuration, cancellationToken);
+    using var seoulTimeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+    seoulTimeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+    var seoulToken = seoulTimeoutCts.Token;
+
+    try
+    {
+        using var response = await httpClient.GetAsync(requestUrl, seoulToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            return Results.Json(new
+            {
+                success = false,
+                message = "서울시 공공데이터 서버 응답을 받지 못했습니다."
+            }, statusCode: StatusCodes.Status502BadGateway);
+        }
+
+        var envelope = await response.Content.ReadFromJsonAsync<SeoulLostArticleEnvelope>(seoulToken);
+        var payload = envelope?.LostArticleInfo;
+        var apiResult = payload?.Result ?? envelope?.Result;
+
+        if (payload is null)
+        {
+            return Results.Json(new
+            {
+                success = false,
+                code = apiResult?.Code,
+                message = apiResult?.Message ?? "서울시 공공데이터 응답 형식을 확인할 수 없습니다."
+            }, statusCode: StatusCodes.Status502BadGateway);
+        }
+
+        if (apiResult is not null && apiResult.Code is not ("INFO-000" or "INFO-200"))
+        {
+            return Results.Json(new
+            {
+                success = false,
+                code = apiResult.Code,
+                message = apiResult.Message
+            }, statusCode: StatusCodes.Status502BadGateway);
+        }
+
+        var recentRows = payload.Rows
+            .Where(IsPublicItemFrom2025OrLater)
+            .ToList();
+
+        // 전체 건수와 실제 응답 날짜를 기준으로 최신 구간부터 필요한 만큼 역방향 조회한다.
+        if (string.IsNullOrWhiteSpace(managementNumber) &&
+            string.IsNullOrWhiteSpace(registeredDate) &&
+            recentRows.Count < requestedCount &&
+            payload.TotalCount > endIndex)
+        {
+            var batchSize = Math.Min(500, Math.Max(100, requestedCount * 2));
+            var cursorEnd = payload.TotalCount;
+            var requestCount = 0;
+
+            while (recentRows.Count < requestedCount && cursorEnd >= 1 && requestCount < 2)
+            {
+                var batchStart = Math.Max(1, cursorEnd - batchSize + 1);
+                var latestUrl = $"{baseUrl.TrimEnd('/')}/{Uri.EscapeDataString(apiKey)}/json/lostArticleInfo/{batchStart}/{cursorEnd}/";
+
+                using var latestResponse = await httpClient.GetAsync(latestUrl, seoulToken);
+                if (!latestResponse.IsSuccessStatusCode)
+                {
+                    break;
+                }
+
+                var latestEnvelope = await latestResponse.Content.ReadFromJsonAsync<SeoulLostArticleEnvelope>(seoulToken);
+                var batchRows = latestEnvelope?.LostArticleInfo?.Rows ?? [];
+                var batchRecentRows = batchRows.Where(IsPublicItemFrom2025OrLater).ToList();
+
+                recentRows.AddRange(batchRecentRows);
+                requestCount++;
+                cursorEnd = batchStart - 1;
+
+                // 최신순으로 정렬된 데이터에서 기준 연도 이전 구간에 도달하면 조회를 끝낸다.
+                if (batchRecentRows.Count == 0)
+                {
+                    break;
+                }
+            }
+        }
+
+        IEnumerable<SeoulLostArticleRow> filteredRows = recentRows
+            .DistinctBy(row => string.IsNullOrWhiteSpace(row.ManagementNumber)
+                ? $"{row.ItemName}|{row.RegisteredDate}|{row.StoragePlace}"
+                : row.ManagementNumber)
+            .OrderByDescending(row => string.CompareOrdinal(row.RegisteredDate, row.ReceivedDate) >= 0
+                ? row.RegisteredDate
+                : row.ReceivedDate)
+            .Take(requestedCount);
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            filteredRows = filteredRows.Where(row =>
+                row.ItemName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                row.ItemCategory.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                row.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                row.StoragePlace.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                row.ReceivingOrganization.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var seoulData = filteredRows.Select(row => new SeoulPublicLostItem
+        {
+            Id = row.ManagementNumber,
+            Status = row.Status,
+            RegisteredDate = row.RegisteredDate,
+            ReceivedDate = row.ReceivedDate,
+            Description = NormalizePublicDescription(row.Description),
+            StoragePlace = row.StoragePlace,
+            RegistrantId = row.RegistrantId,
+            ItemName = row.ItemName,
+            ItemCategory = row.ItemCategory,
+            ReceivingOrganization = row.ReceivingOrganization,
+            Source = "서울 열린데이터광장"
+        }).ToList();
+
+        var lost112Data = await lost112Task;
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            lost112Data = lost112Data.Where(item =>
+                item.ItemName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                item.ItemCategory.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                item.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                item.StoragePlace.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                item.ReceivingOrganization.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        var data = MergePublicItems(seoulData, lost112Data)
+            .OrderByDescending(item => string.CompareOrdinal(item.RegisteredDate, item.ReceivedDate) >= 0
+                ? item.RegisteredDate
+                : item.ReceivedDate)
+            .Take(requestedCount)
+            .ToList();
+
+        var updatedAt = DateTime.UtcNow;
+        cache.Set(cacheKey, new PublicItemsCacheEntry
+        {
+            Data = data,
+            Total = payload.TotalCount,
+            UpdatedAt = updatedAt
+        }, TimeSpan.FromMinutes(10));
+
+        return Results.Ok(new
+        {
+            success = true,
+            sources = new[] { "서울 열린데이터광장", "경찰청 LOST112" },
+            total = payload.TotalCount,
+            count = data.Count,
+            cutoffYear = 2025,
+            adaptive = true,
+            cached = false,
+            updatedAt,
+            start = startIndex,
+            end = endIndex,
+            data
+        });
+    }
+    catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+    {
+        var fallback = (await lost112Task).Take(requestedCount).ToList();
+        if (fallback.Count > 0)
+        {
+            var updatedAt = DateTime.UtcNow;
+            cache.Set(cacheKey, new PublicItemsCacheEntry { Data = fallback, Total = fallback.Count, UpdatedAt = updatedAt }, TimeSpan.FromMinutes(10));
+            return Results.Ok(new { success = true, sources = new[] { "경찰청 LOST112" }, total = fallback.Count, count = fallback.Count, cutoffYear = 2025, adaptive = true, cached = false, partial = true, updatedAt, start = startIndex, end = endIndex, data = fallback });
+        }
+        return Results.Json(new
+        {
+            success = false,
+            message = "서울시 공공데이터 서버 응답 시간이 초과되었습니다."
+        }, statusCode: StatusCodes.Status504GatewayTimeout);
+    }
+    catch (HttpRequestException)
+    {
+        var fallback = (await lost112Task).Take(requestedCount).ToList();
+        if (fallback.Count > 0)
+        {
+            var updatedAt = DateTime.UtcNow;
+            cache.Set(cacheKey, new PublicItemsCacheEntry { Data = fallback, Total = fallback.Count, UpdatedAt = updatedAt }, TimeSpan.FromMinutes(10));
+            return Results.Ok(new { success = true, sources = new[] { "경찰청 LOST112" }, total = fallback.Count, count = fallback.Count, cutoffYear = 2025, adaptive = true, cached = false, partial = true, updatedAt, start = startIndex, end = endIndex, data = fallback });
+        }
+        return Results.Json(new
+        {
+            success = false,
+            message = "서울시 공공데이터 서버에 연결할 수 없습니다."
+        }, statusCode: StatusCodes.Status502BadGateway);
+    }
+    catch (System.Text.Json.JsonException)
+    {
+        var fallback = (await lost112Task).Take(requestedCount).ToList();
+        if (fallback.Count > 0)
+        {
+            var updatedAt = DateTime.UtcNow;
+            cache.Set(cacheKey, new PublicItemsCacheEntry { Data = fallback, Total = fallback.Count, UpdatedAt = updatedAt }, TimeSpan.FromMinutes(10));
+            return Results.Ok(new { success = true, sources = new[] { "경찰청 LOST112" }, total = fallback.Count, count = fallback.Count, cutoffYear = 2025, adaptive = true, cached = false, partial = true, updatedAt, start = startIndex, end = endIndex, data = fallback });
+        }
+        return Results.Json(new
+        {
+            success = false,
+            message = "서울시 공공데이터 응답을 처리할 수 없습니다."
+        }, statusCode: StatusCodes.Status502BadGateway);
+    }
+});
 
 // 1. Get Items with Filters
 app.MapGet("/api/items", (string? q, string? dong, string? type, string? cat) =>

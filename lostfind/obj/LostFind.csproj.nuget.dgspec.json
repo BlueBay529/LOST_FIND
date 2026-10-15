@@ -10,7 +10,7 @@
         "projectUniqueName": "C:\\Users\\aurea\\Documents\\Codex\\lostfind\\LostFind.csproj",
         "projectName": "LostFind",
         "projectPath": "C:\\Users\\aurea\\Documents\\Codex\\lostfind\\LostFind.csproj",
-        "packagesPath": "C:\\Users\\aurea\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\aurea\\AppData\\Local\\Packages\\sandbox.{47aa1329-551b-43bc-9d54-41e50d264342}\\AC\\Temp\\lostfind-dotnet-home\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\aurea\\Documents\\Codex\\lostfind\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -66,7 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
