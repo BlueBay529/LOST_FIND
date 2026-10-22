@@ -83,6 +83,7 @@ public sealed class SeoulPublicLostItem
 
 public sealed class PublicItemsCacheEntry
 {
+    public bool Partial { get; set; }
     public List<SeoulPublicLostItem> Data { get; set; } = [];
     public int Total { get; set; }
     public DateTime UpdatedAt { get; set; }

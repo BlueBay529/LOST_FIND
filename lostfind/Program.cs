@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using LostFind.Models;
-using Microsoft.Extensions.Caching.Memory;
+using LostFind.Services;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -32,7 +32,8 @@ builder.Services.AddSingleton(new HttpClient
 {
     Timeout = TimeSpan.FromSeconds(20)
 });
-builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<PublicItemsRefreshService>();
+builder.Services.AddHostedService<PublicItemsRefreshService>(services => services.GetRequiredService<PublicItemsRefreshService>());
 
 var app = builder.Build();
 
@@ -251,7 +252,7 @@ bool IsPublicItemFrom2025OrLater(SeoulLostArticleRow row)
     return IsAllowedYear(row.RegisteredDate) || IsAllowedYear(row.ReceivedDate);
 }
 
-async Task<List<SeoulPublicLostItem>> FetchLost112ItemsAsync(
+async Task<(List<SeoulPublicLostItem> Data, bool Success)> FetchLost112ItemsAsync(
     HttpClient httpClient,
     IConfiguration configuration,
     CancellationToken cancellationToken)
@@ -259,26 +260,31 @@ async Task<List<SeoulPublicLostItem>> FetchLost112ItemsAsync(
     var apiKey = configuration["DATA_GO_KR_API_KEY"] ?? configuration["LOST112_API_KEY"];
     if (string.IsNullOrWhiteSpace(apiKey))
     {
-        return [];
+        return ([], true);
     }
 
     var endpoint = configuration["LOST112_API_BASE_URL"]
         ?? "https://apis.data.go.kr/1320000/LosfundInfoInqireService/getLosfundInfoAccToClAreaPd";
     var serviceKey = apiKey.Contains('%') ? apiKey : Uri.EscapeDataString(apiKey);
-    var requestUrl = $"{endpoint}?serviceKey={serviceKey}&START_YMD=20250101&END_YMD={DateTime.Today:yyyyMMdd}&pageNo=1&numOfRows=500";
+    var requestUrl = $"{endpoint}?serviceKey={serviceKey}&START_YMD=20250101&END_YMD={DateTime.Today:yyyyMMdd}&pageNo=1&numOfRows=50";
 
     try
     {
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+        timeoutCts.CancelAfter(TimeSpan.FromSeconds(15));
         using var response = await httpClient.GetAsync(requestUrl, timeoutCts.Token);
         if (!response.IsSuccessStatusCode)
         {
-            return [];
+            return ([], false);
         }
 
         var xml = await response.Content.ReadAsStringAsync(timeoutCts.Token);
         var document = XDocument.Parse(xml);
+        var resultCode = document.Descendants().FirstOrDefault(element => element.Name.LocalName is "resultCode" or "returnReasonCode")?.Value.Trim();
+        if (resultCode is not null && resultCode is not ("00" or "0"))
+            return ([], false);
+        if (!document.Descendants().Any(element => element.Name.LocalName == "body"))
+            return ([], false);
 
         static string Value(XElement item, string name) =>
             item.Elements().FirstOrDefault(element =>
@@ -289,7 +295,7 @@ async Task<List<SeoulPublicLostItem>> FetchLost112ItemsAsync(
                 ? date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
                 : value;
 
-        return document.Descendants()
+        var data = document.Descendants()
             .Where(element => element.Name.LocalName.Equals("item", StringComparison.OrdinalIgnoreCase))
             .Select(item =>
             {
@@ -321,10 +327,15 @@ async Task<List<SeoulPublicLostItem>> FetchLost112ItemsAsync(
                 int.TryParse(item.RegisteredDate[..4], out var year) && year >= 2025 &&
                 $"{item.StoragePlace} {item.ReceivingOrganization} {item.Description}".Contains("중랑", StringComparison.OrdinalIgnoreCase))
             .ToList();
+        return (data, true);
+    }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    {
+        throw;
     }
     catch
     {
-        return [];
+        return ([], false);
     }
 }
 
@@ -366,311 +377,182 @@ List<SeoulPublicLostItem> MergePublicItems(
 
 // --- REST API Endpoints ---
 
-// 서울 열린데이터광장 대중교통 습득물 조회
-// Cloudtype 환경변수: SEOUL_OPEN_API_KEY
-app.MapGet("/api/public-items", async (
-    int? start,
-    int? end,
-    string? managementNumber,
-    string? registeredDate,
-    string? q,
-    bool? refresh,
-    HttpClient httpClient,
-    IConfiguration configuration,
-    IMemoryCache cache,
-    CancellationToken cancellationToken) =>
+// 서버 시작 시 및 매 정시 호출하는 공공데이터 조회 작업입니다.
+async Task<PublicItemsCacheEntry> FetchPublicItemsSnapshotAsync(CancellationToken cancellationToken)
 {
+    const int limit = 50;
+    using var workTimeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+    workTimeoutCts.CancelAfter(TimeSpan.FromSeconds(35));
+    var workToken = workTimeoutCts.Token;
+    var configuration = app.Configuration;
+    var httpClient = app.Services.GetRequiredService<HttpClient>();
     var apiKey = configuration["SEOUL_OPEN_API_KEY"];
     if (string.IsNullOrWhiteSpace(apiKey) && app.Environment.IsDevelopment())
     {
         apiKey = "6175714668746c6431323246744c5a41";
     }
-    if (string.IsNullOrWhiteSpace(apiKey))
-    {
-        return Results.Json(new
-        {
-            success = false,
-            message = "서울시 Open API 인증키가 설정되지 않았습니다."
-        }, statusCode: StatusCodes.Status503ServiceUnavailable);
-    }
 
-    var startIndex = start ?? 1;
-    var endIndex = end ?? 100;
-    if (apiKey.Equals("sample", StringComparison.OrdinalIgnoreCase))
-    {
-        endIndex = Math.Min(endIndex, 5);
-    }
-    if (startIndex < 1 || endIndex < startIndex || endIndex - startIndex + 1 > 1000)
-    {
-        return Results.BadRequest(new
-        {
-            success = false,
-            message = "조회 범위는 1 이상이며 한 번에 최대 1,000건까지 가능합니다."
-        });
-    }
-
-    var cacheKey = $"public-items:{startIndex}:{endIndex}:{managementNumber}:{registeredDate}:{q}";
-    if (refresh is not true && cache.TryGetValue<PublicItemsCacheEntry>(cacheKey, out var cached) && cached is not null)
-    {
-        return Results.Ok(new
-        {
-            success = true,
-            sources = new[] { "서울 열린데이터광장", "경찰청 LOST112" },
-            total = cached.Total,
-            count = cached.Data.Count,
-            cutoffYear = 2025,
-            adaptive = true,
-            cached = true,
-            updatedAt = cached.UpdatedAt,
-            start = startIndex,
-            end = endIndex,
-            data = cached.Data
-        });
-    }
-
-    if (!string.IsNullOrWhiteSpace(registeredDate) &&
-        !DateOnly.TryParseExact(
-            registeredDate,
-            "yyyy-MM-dd",
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.None,
-            out _))
-    {
-        return Results.BadRequest(new
-        {
-            success = false,
-            message = "등록일자는 yyyy-MM-dd 형식으로 입력해주세요."
-        });
-    }
-
-    var baseUrl = configuration["SEOUL_OPEN_API_BASE_URL"];
-    if (string.IsNullOrWhiteSpace(baseUrl))
-    {
-        baseUrl = "http://openapi.seoul.go.kr:8088";
-    }
-
-    var requestUrl = $"{baseUrl.TrimEnd('/')}/{Uri.EscapeDataString(apiKey)}/json/lostArticleInfo/{startIndex}/{endIndex}";
-
-    if (!string.IsNullOrWhiteSpace(managementNumber) || !string.IsNullOrWhiteSpace(registeredDate))
-    {
-        var managementSegment = string.IsNullOrWhiteSpace(managementNumber)
-            ? "%20"
-            : Uri.EscapeDataString(managementNumber.Trim());
-        requestUrl += $"/{managementSegment}";
-
-        if (!string.IsNullOrWhiteSpace(registeredDate))
-        {
-            requestUrl += $"/{Uri.EscapeDataString(registeredDate)}";
-        }
-    }
-
-    requestUrl += "/";
-
-    var requestedCount = endIndex - startIndex + 1;
-    var lost112Task = FetchLost112ItemsAsync(httpClient, configuration, cancellationToken);
-    using var seoulTimeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-    seoulTimeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
-    var seoulToken = seoulTimeoutCts.Token;
+    var lost112Task = FetchLost112ItemsAsync(httpClient, configuration, workToken);
+    List<SeoulPublicLostItem> seoulData = [];
+    var seoulSucceeded = false;
 
     try
     {
-        using var response = await httpClient.GetAsync(requestUrl, seoulToken);
-        if (!response.IsSuccessStatusCode)
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new InvalidOperationException("서울시 Open API 인증키가 설정되지 않았습니다.");
+
+        var baseUrl = configuration["SEOUL_OPEN_API_BASE_URL"] ?? "http://openapi.seoul.go.kr:8088";
+        var pageSize = apiKey.Equals("sample", StringComparison.OrdinalIgnoreCase) ? 5 : limit;
+        async Task<SeoulLostArticlePayload> FetchPageAsync(int first, int last)
         {
-            return Results.Json(new
-            {
-                success = false,
-                message = "서울시 공공데이터 서버 응답을 받지 못했습니다."
-            }, statusCode: StatusCodes.Status502BadGateway);
+            // 요청마다 15초를 부여하되 전체 작업의 35초 제한도 함께 적용합니다.
+            using var requestTimeoutCts = CancellationTokenSource.CreateLinkedTokenSource(workToken);
+            requestTimeoutCts.CancelAfter(TimeSpan.FromSeconds(15));
+            var requestToken = requestTimeoutCts.Token;
+            var url = $"{baseUrl.TrimEnd('/')}/{Uri.EscapeDataString(apiKey)}/json/lostArticleInfo/{first}/{last}/";
+            using var response = await httpClient.GetAsync(url, requestToken);
+            response.EnsureSuccessStatusCode();
+            var envelope = await response.Content.ReadFromJsonAsync<SeoulLostArticleEnvelope>(requestToken);
+            var payload = envelope?.LostArticleInfo;
+            var result = payload?.Result ?? envelope?.Result;
+            if (result?.Code == "INFO-200")
+                return payload ?? new SeoulLostArticlePayload();
+            if (payload is null || (result is not null && result.Code != "INFO-000"))
+                throw new InvalidOperationException("서울시 공공데이터 응답을 처리할 수 없습니다.");
+            return payload;
         }
 
-        var envelope = await response.Content.ReadFromJsonAsync<SeoulLostArticleEnvelope>(seoulToken);
-        var payload = envelope?.LostArticleInfo;
-        var apiResult = payload?.Result ?? envelope?.Result;
-
-        if (payload is null)
+        var firstPage = await FetchPageAsync(1, pageSize);
+        var rows = firstPage.Rows.Where(IsPublicItemFrom2025OrLater).ToList();
+        // 최초 구간과 최신 구간을 합쳐 최대 2회만 조회하며, 요청당 최대 50건입니다.
+        if (rows.Count < limit && firstPage.TotalCount > pageSize)
         {
-            return Results.Json(new
-            {
-                success = false,
-                code = apiResult?.Code,
-                message = apiResult?.Message ?? "서울시 공공데이터 응답 형식을 확인할 수 없습니다."
-            }, statusCode: StatusCodes.Status502BadGateway);
+            var cursorEnd = firstPage.TotalCount;
+            var batchStart = Math.Max(pageSize + 1, cursorEnd - pageSize + 1);
+            var batch = await FetchPageAsync(batchStart, cursorEnd);
+            rows.AddRange(batch.Rows.Where(IsPublicItemFrom2025OrLater));
         }
 
-        if (apiResult is not null && apiResult.Code is not ("INFO-000" or "INFO-200"))
-        {
-            return Results.Json(new
-            {
-                success = false,
-                code = apiResult.Code,
-                message = apiResult.Message
-            }, statusCode: StatusCodes.Status502BadGateway);
-        }
-
-        var recentRows = payload.Rows
-            .Where(IsPublicItemFrom2025OrLater)
-            .ToList();
-
-        // 전체 건수와 실제 응답 날짜를 기준으로 최신 구간부터 필요한 만큼 역방향 조회한다.
-        if (string.IsNullOrWhiteSpace(managementNumber) &&
-            string.IsNullOrWhiteSpace(registeredDate) &&
-            recentRows.Count < requestedCount &&
-            payload.TotalCount > endIndex)
-        {
-            var batchSize = Math.Min(500, Math.Max(100, requestedCount * 2));
-            var cursorEnd = payload.TotalCount;
-            var requestCount = 0;
-
-            while (recentRows.Count < requestedCount && cursorEnd >= 1 && requestCount < 2)
-            {
-                var batchStart = Math.Max(1, cursorEnd - batchSize + 1);
-                var latestUrl = $"{baseUrl.TrimEnd('/')}/{Uri.EscapeDataString(apiKey)}/json/lostArticleInfo/{batchStart}/{cursorEnd}/";
-
-                using var latestResponse = await httpClient.GetAsync(latestUrl, seoulToken);
-                if (!latestResponse.IsSuccessStatusCode)
-                {
-                    break;
-                }
-
-                var latestEnvelope = await latestResponse.Content.ReadFromJsonAsync<SeoulLostArticleEnvelope>(seoulToken);
-                var batchRows = latestEnvelope?.LostArticleInfo?.Rows ?? [];
-                var batchRecentRows = batchRows.Where(IsPublicItemFrom2025OrLater).ToList();
-
-                recentRows.AddRange(batchRecentRows);
-                requestCount++;
-                cursorEnd = batchStart - 1;
-
-                // 최신순으로 정렬된 데이터에서 기준 연도 이전 구간에 도달하면 조회를 끝낸다.
-                if (batchRecentRows.Count == 0)
-                {
-                    break;
-                }
-            }
-        }
-
-        IEnumerable<SeoulLostArticleRow> filteredRows = recentRows
+        seoulData = rows
             .DistinctBy(row => string.IsNullOrWhiteSpace(row.ManagementNumber)
                 ? $"{row.ItemName}|{row.RegisteredDate}|{row.StoragePlace}"
                 : row.ManagementNumber)
-            .OrderByDescending(row => string.CompareOrdinal(row.RegisteredDate, row.ReceivedDate) >= 0
-                ? row.RegisteredDate
-                : row.ReceivedDate)
-            .Take(requestedCount);
+            .Select(row => new SeoulPublicLostItem
+            {
+                Id = row.ManagementNumber,
+                Status = row.Status,
+                RegisteredDate = row.RegisteredDate,
+                ReceivedDate = row.ReceivedDate,
+                Description = NormalizePublicDescription(row.Description),
+                StoragePlace = row.StoragePlace,
+                RegistrantId = row.RegistrantId,
+                ItemName = row.ItemName,
+                ItemCategory = row.ItemCategory,
+                ReceivingOrganization = row.ReceivingOrganization,
+                Source = "서울 열린데이터광장"
+            }).ToList();
+        seoulSucceeded = true;
+    }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    {
+        throw;
+    }
+    catch (Exception exception) when (exception is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException or InvalidOperationException)
+    {
+        // LOST112가 성공한 경우 최초 부분 조회 결과로 사용할 수 있습니다.
+    }
 
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            var term = q.Trim();
-            filteredRows = filteredRows.Where(row =>
-                row.ItemName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                row.ItemCategory.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                row.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                row.StoragePlace.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                row.ReceivingOrganization.Contains(term, StringComparison.OrdinalIgnoreCase));
-        }
+    var lost112Result = await lost112Task;
+    workToken.ThrowIfCancellationRequested();
+    var lost112Data = lost112Result.Data;
+    if (!seoulSucceeded && lost112Data.Count == 0)
+        throw new InvalidOperationException("공공데이터 제공기관에서 정보를 받지 못했습니다.");
 
-        var seoulData = filteredRows.Select(row => new SeoulPublicLostItem
-        {
-            Id = row.ManagementNumber,
-            Status = row.Status,
-            RegisteredDate = row.RegisteredDate,
-            ReceivedDate = row.ReceivedDate,
-            Description = NormalizePublicDescription(row.Description),
-            StoragePlace = row.StoragePlace,
-            RegistrantId = row.RegistrantId,
-            ItemName = row.ItemName,
-            ItemCategory = row.ItemCategory,
-            ReceivingOrganization = row.ReceivingOrganization,
-            Source = "서울 열린데이터광장"
-        }).ToList();
+    var data = MergePublicItems(seoulData, lost112Data)
+        .OrderByDescending(item => string.CompareOrdinal(item.RegisteredDate, item.ReceivedDate) >= 0
+            ? item.RegisteredDate : item.ReceivedDate)
+        .Take(limit)
+        .ToList();
 
-        var lost112Data = await lost112Task;
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            var term = q.Trim();
-            lost112Data = lost112Data.Where(item =>
-                item.ItemName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                item.ItemCategory.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                item.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                item.StoragePlace.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                item.ReceivingOrganization.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
+    return new PublicItemsCacheEntry
+    {
+        Data = data,
+        Total = data.Count,
+        UpdatedAt = DateTime.UtcNow,
+        Partial = !seoulSucceeded || !lost112Result.Success
+    };
+}
 
-        var data = MergePublicItems(seoulData, lost112Data)
-            .OrderByDescending(item => string.CompareOrdinal(item.RegisteredDate, item.ReceivedDate) >= 0
-                ? item.RegisteredDate
-                : item.ReceivedDate)
-            .Take(requestedCount)
-            .ToList();
+app.Services.GetRequiredService<PublicItemsRefreshService>().SetLoader(FetchPublicItemsSnapshotAsync);
 
-        var updatedAt = DateTime.UtcNow;
-        cache.Set(cacheKey, new PublicItemsCacheEntry
-        {
-            Data = data,
-            Total = payload.TotalCount,
-            UpdatedAt = updatedAt
-        }, TimeSpan.FromMinutes(10));
+// 조회 요청은 외부 API를 호출하지 않고 저장된 최대 50건을 검색합니다.
+// refresh=true를 보내더라도 갱신 일정은 서버의 매 정시 작업을 따릅니다.
+app.MapGet("/api/public-items", (
+    int? start,
+    int? end,
+    string? managementNumber,
+    string? registeredDate,
+    string? q,
+    PublicItemsRefreshService store) =>
+{
+    var startIndex = start ?? 1;
+    var endIndex = Math.Min(end ?? 50, 50);
+    if (startIndex < 1 || endIndex < startIndex)
+        return Results.BadRequest(new { success = false, message = "조회 범위는 1부터 50 사이로 입력해주세요." });
+    if (!string.IsNullOrWhiteSpace(registeredDate) &&
+        !DateOnly.TryParseExact(registeredDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+        return Results.BadRequest(new { success = false, message = "등록일자는 yyyy-MM-dd 형식으로 입력해주세요." });
 
-        return Results.Ok(new
+    var snapshot = store.Snapshot;
+    if (snapshot is null)
+    {
+        return Results.Json(new
         {
             success = true,
-            sources = new[] { "서울 열린데이터광장", "경찰청 LOST112" },
-            total = payload.TotalCount,
-            count = data.Count,
-            cutoffYear = 2025,
-            adaptive = true,
+            loading = true,
+            retrying = store.LastError is not null,
+            retryAfterSeconds = store.IsRefreshing ? 3 : 30,
             cached = false,
-            updatedAt,
-            start = startIndex,
-            end = endIndex,
-            data
-        });
+            count = 0,
+            nextRefreshAt = PublicItemsRefreshService.NextRefreshAt,
+            message = store.LastError ?? "공공데이터를 처음 불러오는 중입니다.",
+            data = Array.Empty<SeoulPublicLostItem>()
+        }, statusCode: StatusCodes.Status202Accepted);
     }
-    catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+
+    IEnumerable<SeoulPublicLostItem> filtered = snapshot.Data;
+    if (!string.IsNullOrWhiteSpace(managementNumber))
+        filtered = filtered.Where(item => item.Id.Equals(managementNumber.Trim(), StringComparison.OrdinalIgnoreCase));
+    if (!string.IsNullOrWhiteSpace(registeredDate))
+        filtered = filtered.Where(item => item.RegisteredDate == registeredDate);
+    if (!string.IsNullOrWhiteSpace(q))
     {
-        var fallback = (await lost112Task).Take(requestedCount).ToList();
-        if (fallback.Count > 0)
-        {
-            var updatedAt = DateTime.UtcNow;
-            cache.Set(cacheKey, new PublicItemsCacheEntry { Data = fallback, Total = fallback.Count, UpdatedAt = updatedAt }, TimeSpan.FromMinutes(10));
-            return Results.Ok(new { success = true, sources = new[] { "경찰청 LOST112" }, total = fallback.Count, count = fallback.Count, cutoffYear = 2025, adaptive = true, cached = false, partial = true, updatedAt, start = startIndex, end = endIndex, data = fallback });
-        }
-        return Results.Json(new
-        {
-            success = false,
-            message = "서울시 공공데이터 서버 응답 시간이 초과되었습니다."
-        }, statusCode: StatusCodes.Status504GatewayTimeout);
+        var term = q.Trim();
+        filtered = filtered.Where(item => new[] { item.ItemName, item.ItemCategory, item.Description, item.StoragePlace, item.ReceivingOrganization }
+            .Any(value => value.Contains(term, StringComparison.OrdinalIgnoreCase)));
     }
-    catch (HttpRequestException)
+
+    var matches = filtered.ToList();
+    var data = matches.Skip(startIndex - 1).Take(endIndex - startIndex + 1).ToList();
+    return Results.Ok(new
     {
-        var fallback = (await lost112Task).Take(requestedCount).ToList();
-        if (fallback.Count > 0)
-        {
-            var updatedAt = DateTime.UtcNow;
-            cache.Set(cacheKey, new PublicItemsCacheEntry { Data = fallback, Total = fallback.Count, UpdatedAt = updatedAt }, TimeSpan.FromMinutes(10));
-            return Results.Ok(new { success = true, sources = new[] { "경찰청 LOST112" }, total = fallback.Count, count = fallback.Count, cutoffYear = 2025, adaptive = true, cached = false, partial = true, updatedAt, start = startIndex, end = endIndex, data = fallback });
-        }
-        return Results.Json(new
-        {
-            success = false,
-            message = "서울시 공공데이터 서버에 연결할 수 없습니다."
-        }, statusCode: StatusCodes.Status502BadGateway);
-    }
-    catch (System.Text.Json.JsonException)
-    {
-        var fallback = (await lost112Task).Take(requestedCount).ToList();
-        if (fallback.Count > 0)
-        {
-            var updatedAt = DateTime.UtcNow;
-            cache.Set(cacheKey, new PublicItemsCacheEntry { Data = fallback, Total = fallback.Count, UpdatedAt = updatedAt }, TimeSpan.FromMinutes(10));
-            return Results.Ok(new { success = true, sources = new[] { "경찰청 LOST112" }, total = fallback.Count, count = fallback.Count, cutoffYear = 2025, adaptive = true, cached = false, partial = true, updatedAt, start = startIndex, end = endIndex, data = fallback });
-        }
-        return Results.Json(new
-        {
-            success = false,
-            message = "서울시 공공데이터 응답을 처리할 수 없습니다."
-        }, statusCode: StatusCodes.Status502BadGateway);
-    }
+        success = true,
+        sources = snapshot.Data.Select(item => item.Source).Distinct().ToArray(),
+        total = matches.Count,
+        count = data.Count,
+        cutoffYear = 2025,
+        adaptive = true,
+        cached = true,
+        loading = false,
+        refreshing = store.IsRefreshing,
+        partial = snapshot.Partial,
+        warning = store.LastError,
+        updatedAt = snapshot.UpdatedAt,
+        nextRefreshAt = PublicItemsRefreshService.NextRefreshAt,
+        start = startIndex,
+        end = endIndex,
+        data
+    });
 });
 
 // 1. Get Items with Filters
