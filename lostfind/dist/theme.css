@@ -1,0 +1,240 @@
+:root {
+  --lf-toggle-surface: #f8fafc;
+  --lf-toggle-text: #334155;
+  --lf-toggle-border: #dbe4f0;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  flex: 0 0 38px;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--lf-toggle-border);
+  border-radius: 11px;
+  background: var(--lf-toggle-surface);
+  color: var(--lf-toggle-text);
+  font: inherit;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: #3b82f6; }
+.theme-toggle:focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
+.list-header-actions { display: flex; align-items: center; gap: 10px; }
+
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --lf-background: #202937;
+  --lf-surface: #2b3749;
+  --lf-raised: #36465d;
+  --lf-border: #526780;
+  --lf-text: #eff4fc;
+  --lf-muted: #c0ccde;
+  --lf-subtle: #aebed3;
+  --lf-link: #afceff;
+  --lf-accent-soft: #394f71;
+  --lf-primary: #9bbdff;
+  --lf-primary-hover: #bad1ff;
+  --lf-primary-text: #172b4a;
+  --lf-toggle-surface: var(--lf-raised);
+  --lf-toggle-text: #ffe0a3;
+  --lf-toggle-border: var(--lf-border);
+  --forest: var(--lf-link);
+  --forest-2: #b7d0ff;
+  --cream: var(--lf-background);
+  --paper: var(--lf-surface);
+  --ink: var(--lf-text);
+  --muted: var(--lf-muted);
+  --line: var(--lf-border);
+  --blue: var(--lf-link);
+  --orange: #ff9b85;
+  --shadow: 0 12px 30px rgba(9, 18, 34, .2);
+  background: var(--lf-background);
+}
+
+html[data-theme="dark"] body { background: var(--lf-background); color: var(--lf-text); }
+html[data-theme="dark"] header,
+html[data-theme="dark"] .mobile-bar {
+  background: rgba(38, 50, 68, .97);
+  border-color: var(--lf-border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .15);
+}
+html[data-theme="dark"] .hero {
+  background: linear-gradient(180deg, #2b3e5a, var(--lf-background) 82%);
+}
+html[data-theme="dark"] :is(.brand, .desktop-nav, .quick-title h2,
+  .public-card-title h3, .title h2, .detail-title, .trust-head h2,
+  .trust-card strong, .similar-card strong, .review-row span) { color: var(--lf-text); }
+html[data-theme="dark"] :is(.hero-copy, .quick-title small, .quick-note,
+  .section-head p, .location-strip, .result-count, .meta, .card-foot time,
+  .public-card-title small, .public-source, .public-description p, .public-loading,
+  .public-data-empty, .pet-module-head p, .pet-card p, .trust-head p,
+  .trust-card span, .how-copy p, .step span, .text-btn, .form-field span,
+  .detail-desc, .faq-a, .auth-tab, .head p, .title small, .source,
+  .count, .loading, .empty, .similar-card span, .review-row strong,
+  .detail-meta-item strong, .mobile-bar button, .photo-drop) { color: var(--lf-muted); }
+html[data-theme="dark"] :is(.public-info-row dt, .row dt, .updated,
+  .progress-step, .recent-empty) { color: var(--lf-subtle); }
+html[data-theme="dark"] :is(.public-info-row dd, .row dd,
+  .subsection-title, .form-field label) { color: var(--lf-text); }
+
+html[data-theme="dark"] :is(.quick-card, .search-panel, .field,
+  .item-card, .public-item-card, .card, .trust-card, .pet-card, .step,
+  dialog, .type-option, .similar-card, .btn-icon-labeled, .back,
+  .toolbar, .empty, .empty-state, .public-data-empty, .pet-empty,
+  .location-strip, .search-reset, .chip, .mobile-filter-toggle) {
+  background: var(--lf-surface);
+  border-color: var(--lf-border);
+  color: var(--lf-text);
+}
+html[data-theme="dark"] :is(.public-item-card.resolved, .how,
+  .detail-meta-box, .report-review, .photo-drop, .modal-item-card,
+  .faq-item, .auth-tabs, .status-tabs) {
+  background: var(--lf-raised);
+  border-color: var(--lf-border);
+}
+html[data-theme="dark"] :is(.modal-head, .detail-desc, .card-foot,
+  .public-description, .source, .review-row, .similar-section,
+  .demo-login-box) { border-color: var(--lf-border); }
+
+html[data-theme="dark"] :is(.form-field input, .form-field select,
+  .form-field textarea, .toolbar input, .toolbar select) {
+  background: var(--lf-background);
+  color: var(--lf-text);
+  border-color: var(--lf-border);
+}
+html[data-theme="dark"] :is(input, textarea)::placeholder {
+  color: var(--lf-subtle);
+  opacity: 1;
+}
+html[data-theme="dark"] .field :is(input, select) { color: var(--lf-text); }
+html[data-theme="dark"] option { background: var(--lf-surface); color: var(--lf-text); }
+html[data-theme="dark"] :is(.field:focus-within, .form-field input:focus-visible,
+  .form-field select:focus-visible, .form-field textarea:focus-visible) {
+  border-color: #7aaaff;
+  outline-color: #7aaaff;
+  box-shadow: 0 0 0 3px rgba(122, 170, 255, .18);
+}
+html[data-theme="dark"] :is(.solid-btn, .submit-wide, .search-submit,
+  .btn-primary-action, .public-preview-button, .refresh,
+  .mobile-bar button.primary, .progress-step.active:before) {
+  background: var(--lf-primary);
+  color: var(--lf-primary-text);
+}
+html[data-theme="dark"] :is(.solid-btn, .submit-wide, .search-submit,
+  .btn-primary-action, .public-preview-button, .refresh):hover {
+  background: var(--lf-primary-hover);
+}
+html[data-theme="dark"] :is(.outline-btn, .back, .search-reset, .mobile-filter-toggle) {
+  background: #34455f;
+  color: #deebff;
+  border-color: #6983a8;
+}
+html[data-theme="dark"] :is(.outline-btn:hover, .text-btn:hover,
+  .search-reset:hover, .similar-card:hover, .btn-icon-labeled:hover) {
+  background: var(--lf-raised);
+  color: var(--lf-text);
+}
+html[data-theme="dark"] :is(.chip.active, .chip:hover) {
+  background: var(--lf-primary);
+  border-color: var(--lf-primary);
+  color: var(--lf-primary-text);
+}
+html[data-theme="dark"] :is(.eyebrow, .filter-token, .user-pill,
+  .public-item-icon, .icon, .trust-icon, .empty-illustration,
+  .type-option.selected, .auth-tab.active, .status-tab.active,
+  .match-score, .demo-login-btn) {
+  background: var(--lf-accent-soft);
+  color: var(--lf-link);
+  border-color: #7593bd;
+}
+html[data-theme="dark"] :is(.public-item-card.resolved .public-item-icon,
+  .public-status.resolved, .status.resolved, .close, .progress-step:before) {
+  background: #3d4d63;
+  color: #d5dfed;
+}
+html[data-theme="dark"] .close:hover { background: #516581; }
+html[data-theme="dark"] :is(.public-description summary, .safety-link,
+  .more-link, .match, .step-num, .progress-step.active,
+  .desktop-nav a:hover, .empty-state h3, .empty strong,
+  .public-data-empty strong) { color: var(--lf-link); }
+
+html[data-theme="dark"] .action-tile.lost,
+html[data-theme="dark"] .badge.lost {
+  background: #5a3e42;
+  color: #ffd0bd;
+  border-color: #a06e6b;
+}
+html[data-theme="dark"] .action-tile.found,
+html[data-theme="dark"] :is(.badge.found, .public-status:not(.resolved), .status:not(.resolved)) {
+  background: #2c554d;
+  color: #b1f0d7;
+  border-color: #5a9481;
+}
+html[data-theme="dark"] .tile-icon { background: rgba(255, 255, 255, .08); }
+html[data-theme="dark"] .pet-module {
+  background: linear-gradient(180deg, var(--lf-background), #303147);
+}
+html[data-theme="dark"] :is(.action-tile.pet, .pet-avatar, .pet-form-note) {
+  background: #503e5b;
+  color: #edc9ff;
+  border-color: #9271a3;
+}
+html[data-theme="dark"] :is(.pet-module-head h2, .pet-card h3,
+  .pet-card small, .pet-empty) { color: #edc9ff; }
+html[data-theme="dark"] .btn-icon-labeled.liked {
+  background: #583e51;
+  border-color: #b7809d;
+  color: #ffc8de;
+}
+html[data-theme="dark"] .status-tag { background: #456494; color: #edf3ff; }
+html[data-theme="dark"] .status-tag.resolved { background: #526179; }
+html[data-theme="dark"] .thumb.wallet { background: #36594d; }
+html[data-theme="dark"] .thumb.phone { background: #615044; }
+html[data-theme="dark"] .thumb.bag { background: #3c566f; }
+html[data-theme="dark"] .thumb.keys { background: #645b39; }
+html[data-theme="dark"] .thumb.other { background: #554667; }
+
+/* 주요 행동은 블루, 문의는 민트, 반려동물은 라벤더로 구분합니다. */
+html[data-theme="dark"] .brand-mark { background: #4c79d6; color: #fff; }
+html[data-theme="dark"] .btn-primary-action { background: #9bdac8; color: #173a31; }
+html[data-theme="dark"] .btn-primary-action:hover { background: #b9ebdc; }
+html[data-theme="dark"] .pet-open { background: #c8b0f0; color: #342247; }
+html[data-theme="dark"] .pet-open:hover { background: #dbc8f8; }
+html[data-theme="dark"] .refresh { background: #405775; color: #e0edff; border: 1px solid #7c9ac1; }
+html[data-theme="dark"] .refresh:hover { background: #506d94; }
+html[data-theme="dark"] .type-option.selected { border-color: #a8c8ff; box-shadow: inset 0 0 0 1px #a8c8ff; }
+html[data-theme="dark"] .action-tile.lost:hover { background: #6b494d; border-color: #d09187; }
+html[data-theme="dark"] .action-tile.found:hover { background: #38695e; border-color: #85c6af; }
+html[data-theme="dark"] .action-tile.pet:hover { background: #624d70; border-color: #b39acb; }
+html[data-theme="dark"] #detailResolveBtn { background: #35574f; border-color: #80b9a4; color: #b1f0d7 !important; }
+html[data-theme="dark"] #detailResolveBtn:hover { background: #436c61; }
+html[data-theme="dark"] #logoutBtn { color: #ffd0d6; border-color: #bc8993; }
+html[data-theme="dark"] #logoutBtn:hover { background: #62434e; }
+html[data-theme="dark"] .theme-toggle:hover { background: #455776; border-color: #e3c88c; }
+html[data-theme="dark"] :is(button, a, summary):focus-visible { outline: 3px solid #bdd5ff; outline-offset: 3px; }
+
+html[data-theme="dark"] .public-list-shell.preview-mode .public-preview-fade {
+  background: linear-gradient(180deg, rgba(32, 41, 55, 0), rgba(32, 41, 55, .88) 48%, #202937 78%);
+}
+html[data-theme="dark"] dialog::backdrop { background: rgba(9, 18, 32, .58); }
+html[data-theme="dark"] .detail-actions { background: var(--lf-surface); }
+html[data-theme="dark"] #myInfoDialog .modal-body > div:first-child {
+  background: var(--lf-raised) !important;
+}
+html[data-theme="dark"] :is(#profileUsername, #infoModalContent) { color: var(--lf-muted) !important; }
+html[data-theme="dark"] footer { background: #1b2432; color: var(--lf-text); }
+html[data-theme="dark"] :is(.footer-brand p, .footer-links, .footer-links button) { color: var(--lf-muted); }
+html[data-theme="dark"] .toast { background: #435b7b; color: var(--lf-text); }
+
+@media (max-width: 768px) {
+  .theme-toggle { width: 38px; height: 38px; flex-basis: 38px; }
+  .list-header-actions { gap: 7px; }
+}
+@media (max-width: 380px) {
+  .list-header-actions .back { padding: 8px; font-size: .8rem; }
+}
